@@ -4,7 +4,7 @@ Converte zip exportado do lattes para latex:
 * gera gráficos na pasta `figs`
 * gera bib do lattes usando SLattes e referencia de forma automática na pasta `texLattes`
 
-Serviço em construção, adaptado para o lattes do autor (ver zampirolli.pdf). 
+Serviço em construção, ver exemplo.pdf e um recorte do lattes do autor (zampirolli.pdf). 
 
 Melhorias são necessárias nesse processo!
 
