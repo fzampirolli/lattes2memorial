@@ -42,8 +42,8 @@ source ../lattesEnv/bin/activate
 # Download e instalar lattes2memorial 
 ```
 git clone git@github.com:fzampirolli/lattes2memorial.git
-python3 lattes2memorial.py instala
-python3 lattes2memorial.py
-python3 lattes2memorial.py limpa #(se desejar apagar todos os arquivos criados)
+python lattes2memorial.py instala
+python lattes2memorial.py
+python lattes2memorial.py limpa #(se desejar apagar todos os arquivos criados)
 ```
 
