@@ -561,10 +561,13 @@ considerando a data de início.
             D = lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA']['ARTIGOS-PUBLICADOS']
 
         D_order = ordenaArtigosAno(D)
+        
+        autoresTodos = []
 
         qualisAno = dict()
         ss0 = '\\begin{enumerate}'
         for p in D_order:
+            autores = []
             if p['DADOS-BASICOS-DO-'+tipo]["@NATUREZA"] == tamanho:
 
                 ss0 += '\n\n\\item '
@@ -576,13 +579,18 @@ considerando a data de início.
                     ss0 += '\\href{' + p['DADOS-BASICOS-DO-'+tipo]['@HOME-PAGE-DO-TRABALHO'][1:-1] + \
                         '}{{\\color{yellow}\\hl{\\textbf{url$>$}}}} '
                 ano = ''
-                try:
-                    ss0 += p['AUTORES']['@NOME-PARA-CITACAO'].upper()+"; "
-                except:
-                    pass
-                for d in p['AUTORES']:
-                    if isinstance(d, dict):
-                        ss0 += d['@NOME-PARA-CITACAO'].upper()+"; "
+                
+                if isinstance(p['AUTORES'], list):
+                    for a in p['AUTORES']:
+                        if a['@NOME-PARA-CITACAO']:
+                            a0 = a['@NOME-PARA-CITACAO'].upper()
+                            ss0 += a0+"; "
+                            autores.append(a0)
+                elif p['AUTORES']['@NOME-PARA-CITACAO']:
+                    a = p['AUTORES']['@NOME-PARA-CITACAO'].upper()
+                    ss0 += a+"; "
+                    autores.append(a0)
+
                 ss0 = ss0[: -2]+'. '
 
                 for c, d in p['DADOS-BASICOS-DO-'+tipo].items():
@@ -602,10 +610,14 @@ considerando a data de início.
                             qualis = lattes.getQualisRevista(d)
                         if qualis != 'SQ':
                             ss0 += '\\\\ {\\color{gray}' + qualis + '}'
+
                 if qualis[:2] in qualisAno.keys():
                     qualisAno[qualis[:2]].append(ano)
                 else:
                     qualisAno[qualis[:2]] = [ano]
+
+            if autores:
+                autoresTodos.append(autores)
 
         ss0 += '\n\n\\end{enumerate}\n'
 
@@ -616,9 +628,9 @@ considerando a data de início.
         except:
             pass
 
-        if tamanho == "COMPLETO":
+        if tamanho == "COMPLETO" and len(qualisAno):
 
-            # desenha figuras
+            # DESENHA FIGURA ARTIGOS POR QUALIS
 
             plt.figure(figsize=[8, 5])
             x = list(sorted(qualisAno.keys()))
@@ -660,92 +672,135 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
     '''
             ss0 += s.replace('__tipo__', lattes.renomeia[tipo])
 
-        # Artigos com Qualis por ano
-        qualisAno2 = dict()
-        for k, q in qualisAno.items():
-            for a in q:
-                if a in qualisAno2.keys():
-                    qualisAno2[a].append(k)
-                else:
-                    qualisAno2[a] = [k]
-
-        listaQualis = ['A1', 'A2', 'A3', 'A4',
-                       'B1', 'B2', 'B3', 'B4', 'C', 'SQ']
-        qualisAno3 = dict()
-        for k, q in qualisAno.items():
-            for a in q:
-                if a in qualisAno3.keys():
-                    qualisAno3[a] += len(listaQualis) - \
-                        listaQualis.index(k)
-                else:
-                    qualisAno3[a] = len(listaQualis) - listaQualis.index(k)
-        myKeys = [int(i) for i in qualisAno3.keys()]
-        myKeys.sort(reverse=True)
-        qualisAno3 = {str(i): qualisAno3[str(i)] for i in myKeys}
-        qualisAno2 = {str(i): qualisAno2[str(i)] for i in myKeys}
-        anos = list(qualisAno3.keys())
-        plt.figure(figsize=[20, 10])
-        # x = anos  # np.arange(len(anos))  # the label locations
-        width = 0.35  # the width of the bars
-
-        fig, ax = plt.subplots()
-
-        tamanhoStr = ''
-        if tamanho == 'RESUMO':
-            tamanhoStr += ' (Resumo)'
-
-        ax.set_title('Artigos por Ano em ' +
-                     lattes.renomeia[tipo] + tamanhoStr)
-        ax.set_ylabel("Soma (A1=10, ..., C=2, SQ=1) ")
-        # ax.set_xlabel('Anos')
-
-        ax.tick_params(axis='x', labelrotation=90)
-
-        pps = ax.bar(anos,
-                     qualisAno3.values(), label='population')
-
-        vet = []
-        tmax = 0
-        for v in qualisAno2.values():
-            s = ''
-            for q in listaQualis:
-                if q in v:
-                    if v.count(q) > 1:
-                        s += str(v.count(q))+q+'+'
+        # DESENHA FIGURA QUALIS POR ANO
+        if len(qualisAno):
+                
+            qualisAno2 = dict()
+            for k, q in qualisAno.items():
+                for a in q:
+                    if a in qualisAno2.keys():
+                        qualisAno2[a].append(k)
                     else:
-                        s += q+'+'
-            tmax = max(tmax, len(s))
-            vet.append(s[:-1])
+                        qualisAno2[a] = [k]
 
-        ax.set_ylim([0, 2*tmax + int(max(qualisAno3.values()))])
+            listaQualis = ['A1', 'A2', 'A3', 'A4',
+                        'B1', 'B2', 'B3', 'B4', 'C', 'SQ']
+            qualisAno3 = dict()
+            for k, q in qualisAno.items():
+                for a in q:
+                    if a in qualisAno3.keys():
+                        qualisAno3[a] += len(listaQualis) - \
+                            listaQualis.index(k)
+                    else:
+                        qualisAno3[a] = len(listaQualis) - listaQualis.index(k)
+            myKeys = [int(i) for i in qualisAno3.keys()]
+            myKeys.sort(reverse=True)
+            qualisAno3 = {str(i): qualisAno3[str(i)] for i in myKeys}
+            qualisAno2 = {str(i): qualisAno2[str(i)] for i in myKeys}
+            anos = list(qualisAno3.keys())
 
-        c = 0
-        for p in pps:
-            height = p.get_height()
-            ax.annotate('{}'.format(vet[c]),
-                        xy=(p.get_x() + p.get_width() / 2, height),
-                        xytext=(0, 3),  # 3 points vertical offset
-                        textcoords="offset points", rotation=90,
-                        ha='center', va='bottom')
-            c += 1
+            plt.figure(figsize=[20, 10])
+            # x = anos  # np.arange(len(anos))  # the label locations
 
-        plt.savefig('figs/qualis'+lattes.renomeia[tipo]+tamanho+'Ano.png')
+            fig, ax = plt.subplots()
+
+            tamanhoStr = ''
+            if tamanho == 'RESUMO':
+                tamanhoStr += ' (Resumo)'
+
+            ax.set_title('Artigos por Ano em ' +
+                        lattes.renomeia[tipo] + tamanhoStr)
+            ax.set_ylabel("Soma (A1=10, ..., C=2, SQ=1) ")
+            # ax.set_xlabel('Anos')
+
+            ax.tick_params(axis='x', labelrotation=90)
+
+            pps = ax.bar(anos,
+                        qualisAno3.values(), label='population')
+
+            vet = []
+            tmax = 0
+            for v in qualisAno2.values():
+                s = ''
+                for q in listaQualis:
+                    if q in v:
+                        if v.count(q) > 1:
+                            s += str(v.count(q))+q+'+'
+                        else:
+                            s += q+'+'
+                tmax = max(tmax, len(s))
+                vet.append(s[:-1])
+
+            ax.set_ylim([0, 2*tmax + int(max(qualisAno3.values()))])
+
+            c = 0
+            for p in pps:
+                height = p.get_height()
+                ax.annotate('{}'.format(vet[c]),
+                            xy=(p.get_x() + p.get_width() / 2, height),
+                            xytext=(0, 3),  # 3 points vertical offset
+                            textcoords="offset points", rotation=90,
+                            ha='center', va='bottom')
+                c += 1
+
+            plt.savefig('figs/qualis'+lattes.renomeia[tipo]+tamanho+'Ano.png')
+            plt.close()
+
+            s = '''
+    A Figura \\ref{figs:qualis__tipo____tipo2__Ano} mostra o número de artigos __tipo3__ 
+    com Qualis, se existirem por ano em __tipo__.
+    Considerar no eixo vertical o somatório de artigos, sendo A1=10, A2=9, $\cdots$, C=2, SQ=1.
+    Onde SQ é Sem Qualis e nesta figura tem peso de apenas uma unidade na vertical.
+    \\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\\textwidth]{figs/qualis__tipo____tipo2__Ano.png}
+    \caption{Artigos por Ano em __tipo__ __tipo3__}
+    \label{figs:qualis__tipo____tipo2__Ano}
+    \end{figure}
+    '''
+            ss0 += s.replace('__tipo__',
+                            lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
+
+
+        # DESENHA FIGURA RELAÇÕES DE AUTORES
+        import itertools
+        import networkx as nx
+
+        dic = {}
+        for p in autoresTodos:
+            aa = []
+            for a in p:
+                s = a.split(',')[0].lower()
+                aa.append(s)
+            for r in list(itertools.combinations(aa, 2)):
+                if r[0] in dic.keys():
+                    dic[r[0]].append(r[1])
+                else:
+                    dic[r[0]] =[r[1]]
+                if r[1] in dic.keys():
+                    dic[r[1]].append(r[0])
+                else:
+                    dic[r[1]] =[r[0]]  
+        plt.figure(figsize=[10, 10])
+        #print(dic)
+        g = nx.Graph(dic)
+        nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
+        plt.savefig('figs/grafo'+lattes.renomeia[tipo]+tamanho+'Ano.png', dpi=300, bbox_inches='tight')
         plt.close()
 
         s = '''
-A Figura \\ref{figs:qualis__tipo____tipo2__Ano} mostra o número de artigos __tipo3__ 
-com Qualis, se existirem por ano em __tipo__.
-Considerar no eixo vertical o somatório de artigos, sendo A1=10, A2=9, $\cdots$, C=2, SQ=1.
-Onde SQ é Sem Qualis e nesta figura tem peso de apenas uma unidade na vertical.
+A Figura \\ref{figs:qualis__tipo____tipo2__Ano} mostra os relacionamentos
+de autores dos artigos __tipo3__.
 \\begin{figure}[h]
 \centering
-\includegraphics[width=0.8\\textwidth]{figs/qualis__tipo____tipo2__Ano.png}
-\caption{Artigos por Ano em __tipo__ __tipo3__}
-\label{figs:qualis__tipo____tipo2__Ano}
+\includegraphics[width=0.8\\textwidth]{figs/grafo__tipo____tipo2__Ano.png}
+\caption{Relacionamentos dos autores dos artigos __tipo__ __tipo3__}
+\label{figs:grafo__tipo____tipo2__Ano}
 \end{figure}
 '''
         ss0 += s.replace('__tipo__',
-                         lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
+                            lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
+
 
         with open('./texLattes/'+lattes.renomeia[tipo]+tamanho+'.tex', 'w') as f:
             f.writelines(ss0)
