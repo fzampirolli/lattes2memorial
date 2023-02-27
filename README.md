@@ -34,21 +34,21 @@ py -m pip install --upgrade pip
 ```
 instalar git: https://git-scm.com/download/mac
 
-# Instalar virtualenv (se desejar)
+# 👇️ Instalar virtualenv (se desejar)
 ```
 pip install virtualenv
 virtualenv ../lattesEnv
 source ../lattesEnv/bin/activate
 ```
 
-# Download do seu Lattes (arquivo zip)
+# 👇️ Download do seu Lattes (arquivo zip)
 * https://lattes.cnpq.br/
 * Atualizar currículo
 * Exportar (final da aba vertical à esquerda)
 * Escolher xml e Continuar
 * Mover esse zip para a pasta lattes2memorial, criada a seguir
 
-# Download e instalar lattes2memorial 
+# 👇️ Download e instalar lattes2memorial 
 ```
 git clone git@github.com:fzampirolli/lattes2memorial.git
 python lattes2memorial.py instala

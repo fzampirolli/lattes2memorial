@@ -1,0 +1,63 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": true,
+      "externalConsole": true,
+      "cwd": "/Users/fz/Google Drive/____class_PE/codigosPE",
+      "program": "/Users/fz/Google Drive/____class_PE/codigosPE/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb"
+    },
+    {
+      "name": "C/C++: gcc Compilar e depurar o arquivo ativo",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "C/C++: gcc arquivo de build ativo"
+    },
+    {
+      "name": "C/C++: gcc-10 Compilar e depurar o arquivo ativo",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "args": [
+        "-Wall",
+        "-std=c99"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "C/C++: gcc-10 arquivo de build ativo"
+    },
+    {
+      "name": "C/C++: clang Compilar e depurar o arquivo ativo",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "args": [
+        "-Wall",
+        "-std=c99"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "C/C++: clang arquivo de build ativo"
+    }
+  ]
+}

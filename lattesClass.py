@@ -1,6 +1,6 @@
 '''
 =====================================================================
-Copyright (C) 2023 Francisco de Assis Zampirolli
+Copyright (C) 2023d Francisco de Assis Zampirolli
 from Federal University of ABC. All rights reserved.
 
 lattes2memorial is free: you can redistribute it and/or modify
@@ -331,31 +331,6 @@ class lattes(object):
 
         lattes.saveJsonConfig(lattes.NUMERO_IDENTIFICADOR)
 
-        # "@NOME-ORGAO": "Centro de Matem\u00e1tica, Computa\u00e7\u00e3o e Cogni\u00e7\u00e3o",
-        # "@CODIGO-UNIDADE": "",
-        # "@NOME-UNIDADE": "",
-        # "@LOGRADOURO-COMPLEMENTO": "Rua Santa Ad\u00e9lia, 166",
-        # "@PAIS": "Brasil",
-        # "@UF": "SP",
-        # "@CEP": "09210170",
-        # "@CIDADE": "Santo Andr\u00e9",
-        # "@BAIRRO": "Bangu",
-        # "@DDD": "11",
-        # "@TELEFONE": "44371600",
-        # "@RAMAL": "",
-        # "@FAX": "",
-        # "@CAIXA-POSTAL": "",
-        # "@E-MAIL": "fzampirolli@ufabc.edu.br",
-
-        # atuacoes = []
-        # for p in lattes.jsonLattes['CURRICULO-VITAE']['DADOS-GERAIS']['ATUACOES-PROFISSIONAIS']['ATUACAO-PROFISSIONAL']:
-        #     atuacoes.append(p['@NOME-INSTITUICAO'])
-        # # print(atuacoes) # verificar manualmente qual é o índice da atuação prof. atual
-        # atuacaoIndice = 7  # UFABC
-        # lattes.jsonConfigura['ATUACAO-PROFISSIONAL'] = atuacoes[atuacaoIndice]
-        # lattes.jsonConfigura['ANO-INICIO'] = lattes.jsonLattes['CURRICULO-VITAE']['DADOS-GERAIS'][
-        #     'ATUACOES-PROFISSIONAIS']['ATUACAO-PROFISSIONAL'][atuacaoIndice]['VINCULOS']['@ANO-INICIO']
-
     def atualizaDadosExtras():
         file = './extras/dados_.tex'
         if not os.path.exists(file):
@@ -391,12 +366,18 @@ class lattes(object):
                                  "DETALHAMENTO-DE-OUTRAS-ORIENTACOES-CONCLUIDAS"]
 
         def geraTex(tipo, tipo2):
-            ss0 = '\\begin{enumerate}'
             d = lattes.jsonLattes["CURRICULO-VITAE"]["OUTRA-PRODUCAO"]
             vo = orientacoes[tipo]
-            ssLista = []
+
+            ts = lattes.renomeia[tipo2] if tipo2 else ''
+
             if not d:
+                with open('./texLattes/Orientacoes'+tipo+ts[:4]+'.tex', 'w') as f:
+                    f.writelines('')
+                f.close()
                 return ''
+            ssLista = []
+            ss0 = '\\begin{enumerate}'
             for k, v in d.items():
                 if k == "ORIENTACOES-CONCLUIDAS":
                     for k0, v0 in d[k].items():
@@ -424,10 +405,6 @@ class lattes(object):
             vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
             ss0 += ''.join([v[1] for v in vSort])
             ss0 += '\n\n\\end{enumerate}\n'
-
-            ts = ''
-            if tipo2:
-                ts += lattes.renomeia[tipo2]
 
             v0 = sorted([v[0] for v in vSort], reverse=True)
             if len(v0) > 2:  # desenha gráficos
@@ -492,8 +469,15 @@ considerando a data de início.
                                     "DADOS-BASICOS-DA-ORIENTACAO-EM-ANDAMENTO-DE-GRADUACAO",
                                     "DETALHAMENTO-DA-ORIENTACAO-EM-ANDAMENTO-DE-GRADUACAO"]
 
-        ss0 = '\\begin{enumerate}'
         d = lattes.jsonLattes["CURRICULO-VITAE"]["DADOS-COMPLEMENTARES"]
+
+        if not d:
+            with open('./texLattes/OrientacoesAndamento'+tipo+'.tex', 'w') as f:
+                f.writelines('')
+            f.close()
+            return ''
+
+        ss0 = '\\begin{enumerate}'
         vo = orientacoes[tipo]
         ssLista = []
         for k, v in d.items():
@@ -545,6 +529,7 @@ considerando a data de início.
         ss0 += ''.join([v[1] for v in vSort])
         ss0 += '\n\n\\end{enumerate}\n'
 
+        if len(ss0) < 50: ss0='sem orientações e andamento - '+tipo
         with open('./texLattes/OrientacoesAndamento'+tipo+'.tex', 'w') as f:
             f.writelines(ss0)
         f.close()
@@ -556,19 +541,23 @@ considerando a data de início.
                        for a, b in D.items() for p in b]
             return [t[1] for t in sorted(valores, key=lambda x: x[0], reverse=True)]
 
+        with open('./texLattes/'+lattes.renomeia[tipo]+tamanho+'.tex', 'w') as f:
+            f.writelines('')
+        f.close()
+
         if tipo == 'TRABALHO':
             if not lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA']:
                 return ''
             if not "TRABALHOS-EM-EVENTOS" in lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA'].keys():
                 print("Sem trabalhos em eventos")
-                return 1
+                return ''
             D = lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA']['TRABALHOS-EM-EVENTOS']
         else:
             if not lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA']:
                 return ''
             if not "ARTIGOS-PUBLICADOS" in lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA'].keys():
                 print("Sem artigos em revistas")
-                return 1
+                return ''
             D = lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA']['ARTIGOS-PUBLICADOS']
 
         D_order = ordenaArtigosAno(D)
@@ -838,20 +827,25 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
             plt.savefig('figs/eventos'+tipo + '.png')
             plt.close()
 
+        if len(ss0) < 50: ss0 = ''
+
         with open('./texLattes/Eventos'+tipo+'.tex', 'w') as f:
             f.writelines(ss0)
         f.close()
 
     def pegaApresentacoes():
-        ss0 = '\\begin{enumerate}'
-        ssLista = []
-
         evento = ["APRESENTACAO-DE-TRABALHO",
                   "DADOS-BASICOS-DA-APRESENTACAO-DE-TRABALHO",
                   "DETALHAMENTO-DA-APRESENTACAO-DE-TRABALHO"]
         d = lattes.jsonLattes["CURRICULO-VITAE"]["PRODUCAO-TECNICA"]
+        
         if not d:
+            with open('./texLattes/Apresentacoes.tex', 'w') as f:
+                f.writelines('')
+            f.close()
             return ''
+        ssLista = []
+        ss0 = '\\begin{enumerate}'
         for k, v in d.items():
             if k == "DEMAIS-TIPOS-DE-PRODUCAO-TECNICA":
                 for k0, v0 in d[k].items():
