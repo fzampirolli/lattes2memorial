@@ -3,13 +3,14 @@ Converte zip exportado do lattes para latex
 
 Script em construção, adaptado para o lattes do autor. Melhorias são necessárias!
 
-# Instalar python e pip
+# Instalar python, pip e git (se ainda não tiver instalado)
 
 ## 👇️ Debian / Ubuntu
 ```
 sudo apt update
 sudo apt install python3-venv python3-pip
 python3 -m pip install --upgrade pip
+sudo apt install git-all
 ```
 
 ## 👇️ macOS
@@ -22,6 +23,7 @@ python3 -m pip install --upgrade pip
 ```
 py -m pip install --upgrade pip
 ```
+instalar git: https://git-scm.com/download/mac
 
 # Instalar virtualenv (se desejar)
 ```
