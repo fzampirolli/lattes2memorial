@@ -1,0 +1,187 @@
+% ---------------------------------------------------------------
+% Adaptado de https://pt.overleaf.com/latex/templates/template-ufabc-dissertacao/zmwgdkcsrxjb
+% por Francisco de Assis Zampirolli, 2023
+% ---------------------------------------------------------------
+
+% ---------------------------------------------------------------
+% Modelo LaTex para dissertação e tese do programa de Pós Graduação em Ciência da Computação da UFABC
+% ---------------------------------------------------------------
+
+\documentclass[
+	% -- opções da classe memoir --
+	12pt,					% tamanho da fonte
+	openright,				% capítulos começam em pág ímpar (insere página vazia caso preciso)
+	oneside,					% para impressão em verso e anverso. Oposto a oneside
+	a4paper,					% tamanho do papel. 
+	% -- opções da classe abntex2 --
+	%chapter=TITLE,			% títulos de capítulos convertidos em letras maiúsculas
+	%section=TITLE,			% títulos de seções convertidos em letras maiúsculas
+	%subsection=TITLE,		% títulos de subseções convertidos em letras maiúsculas
+	%subsubsection=TITLE,	% títulos de subsubseções convertidos em letras maiúsculas
+	% -- opções do pacote babel --
+	english,					% idioma adicional para hifenização
+	%french,					% idioma adicional para hifenização
+	%spanish,				% idioma adicional para hifenização
+	brazil					% o último idioma é o principal do documento
+	]{abntex2}
+
+% ---------------------
+% Pacotes OBRIGATÓRIOS
+% ---------------------
+\usepackage{lmodern}				% Usa a fonte Latin Modern			
+\usepackage[T1]{fontenc}			% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
+\usepackage{lastpage}			% Usado pela Ficha catalográfica
+\usepackage{indentfirst}			% Indenta o primeiro parágrafo de cada seção.
+\usepackage{color}				% Controle das cores
+
+\usepackage{graphicx,graphicx}	% Inclusão de gráficos
+\usepackage{epsfig,subfig}		% Inclusão de figuras
+\usepackage{microtype} 			% Melhorias de justificação
+% ---------------------
+
+% Colors package
+\usepackage[dvipsnames]{xcolor}
+\usepackage {soul}
+\setul{0.3ex}{0.2ex}
+ 
+% ---------------------
+% Pacotes ADICIONAIS
+% ---------------------
+\usepackage{lipsum}						% Geração de dummy text
+\usepackage{amsmath,amssymb,mathrsfs}	% Comandos matemáticos avançados 
+\usepackage{setspace}  					% Para permitir espaçamento simples, 1 1/2 e duplo
+\usepackage{verbatim}					% Para poder usar o ambiente "comment"
+\usepackage{tabularx} 					% Para poder ter tabelas com colunas de largura auto-ajustável
+\usepackage{afterpage} 					% Para executar um comando depois do fim da página corrente
+\usepackage{url} 						% Para formatar URLs (endereços da Web)
+% ---------------------
+
+\usepackage{quoting}
+
+\usepackage{hyperref}
+
+% ---------------------
+% Pacotes de CITAÇÕES
+% ---------------------
+\usepackage[brazilian,hyperpageref]{backref}	% Paginas com as citações na bibl
+%\usepackage[alf,abnt-etal-cite=4]{abntex2cite}				% Citações padrão ABNT (alfa)
+\usepackage[alf,abnt-etal-cite=4,abnt-etal-list=0,abnt-etal-text=emph]{abntex2cite}
+%\usepackage[num]{abntex2cite}				% Citações padrão ABNT (numericas)
+%\usepackage[style=alphabetic,sorting=nyt,sortcites=true,maxbibnames=9,autopunct=true,babel=hyphen,hyperref=true,abbreviate=false]{biblatex}
+% ---------------------
+
+
+% Configurações de CITAÇÕES para abntex2
+\input{extras/conf_citacoes}
+
+% Inclusão de dados para CAPA e FOLHA DE ROSTO (título, autor, orientador, etc.)
+\input{extras/dados}
+
+% Inclui Configurações de aparência do PDF Final
+\input{extras/conf_pdf}
+
+% O tamanho da identação do parágrafo é dado por:
+\setlength{\parindent}{1.3cm}
+
+% Controle do espaçamento entre um parágrafo e outro:
+\setlength{\parskip}{0.2cm}  % tente também \onelineskip
+
+% ---------------------
+% Compila o índice
+% ---------------------
+\makeindex
+% ---------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  INICIO DO DOCUMENTO  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% Retira espaço extra obsoleto entre as frases.
+\frenchspacing
+
+% ----------------------------------------------------------
+% ELEMENTOS PRÉ-TEXTUAIS (Capa, Resumo, Abstract, etc.)
+% ----------------------------------------------------------
+\pretextual
+
+% Capa
+\include{pretextual/capa}
+
+% % Folha de rosto (o * indica que haverá a ficha bibliográfica)
+% \imprimirfolhaderosto*
+
+% % Imprimir Ficha Catalografica
+% \include{pretextual/catalografica}
+
+% % Inserir Folha de Aprovação
+% \include{pretextual/assinaturas}
+
+% % Dedicatória
+% \include{pretextual/dedicatoria}
+
+% % Agradecimentos
+% \include{pretextual/agradecimentos}
+
+% % Epígrafe
+% \include{pretextual/epigrafe}
+
+% Resumo e Abstract
+\include{pretextual/resumos}
+
+% Lista de ilustrações
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\cleardoublepage
+
+% Lista de tabelas
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\cleardoublepage
+
+% Lista de abreviaturas e siglas
+% \begin{siglas}
+%   \item[FAPESP] Fundação de Amparo à Pesquisa do Estado de São Paulo
+%   \item[FEEC] Faculdade de Engenharia Elétrica e de Computação
+%   \item[CMCC] Centro de Matemática, Computação e Cognição
+%   \item[CNPq] Conselho Nacional de Desenvolvimento Científico e Tecnológico
+%   \item[CPCE] Comissão de Promoção à Classe E
+%   \item[CPPD] Comissão Permanente de Pessoal Docente
+%   \item[IME] Instituto de Matemática e Estatística
+%   \item[INEP] Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira
+%   \item[MEC] Ministério da Educação
+%   %\item[MMach] Mathematical Morphology toolbox for the KHOROS
+%   %\item[SisGRAFO] Sistema Gráfico de Otimização para Suporte
+% à Decisão
+%   \item[UFABC] Universidade Federal do ABC
+%   \item[UFES] Universidade Federal do Espírito Santo
+%   \item[UNICAMP] Universidade Estadual de Campinas
+%   \item[USP] Universidade de São Paulo
+% \end{siglas}
+
+% % Lista de símbolos
+% \begin{simbolos}
+%   \item[$ \Gamma $] Letra grega Gama
+%   \item[$ \Lambda $] Lambda
+%   \item[$ \zeta $] Letra grega minúscula zeta
+%   \item[$ \in $] Pertence
+% \end{simbolos}
+
+% Inserir o SUMÁRIO
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+% ----------------------------------------------------------
+% ELEMENTOS TEXTUAIS (Capítulos)
+% ----------------------------------------------------------
+\textual
+% Elementos textuais com numeração arábica
+\pagenumbering{arabic}
+% Reinicia a contagem do número de páginas
+\setcounter{page}{1}
+
+\sethlcolor{Blue}
+
+% Inclui cada capitulo 
