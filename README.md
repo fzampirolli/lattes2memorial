@@ -1,7 +1,13 @@
 # lattes2memorial
-Converte zip exportado do lattes para latex
+Converte zip exportado do lattes para latex, incluindo vários gráficos!
 
-Script em construção, adaptado para o lattes do autor. Melhorias são necessárias!
+Serviço em construção, adaptado para o lattes do autor (ver zampirolli.pdf). 
+
+Melhorias são necessárias nesse processo!
+
+Créditos: 
+* https://pt.overleaf.com/latex/templates/template-ufabc-dissertacao/zmwgdkcsrxjb (adaptado)
+* https://arademaker.github.io/blog/2012/02/15/lattes-to-bibtex.html
 
 # Instalar python, pip e git (se ainda não tiver instalado)
 
