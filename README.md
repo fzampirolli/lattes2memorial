@@ -1,5 +1,8 @@
 # lattes2memorial
-Converte zip exportado do lattes para latex, incluindo vários gráficos!
+Converte zip exportado do lattes para latex:
+* gera tex de várias partes do lattes na pasta `texLattes`
+* gera gráficos na pasta `figs`
+* gera bib do lattes usando SLattes e referencia de forma automática na pasta `texLattes`
 
 Serviço em construção, adaptado para o lattes do autor (ver zampirolli.pdf). 
 
