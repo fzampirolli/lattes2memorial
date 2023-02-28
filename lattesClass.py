@@ -784,12 +784,81 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                     dic[r[1]] =[r[0]]  
         plt.figure(figsize=[10, 10])
         #print(dic)
-        g = nx.Graph(dic)
-        nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
+        G_authors = nx.Graph(dic)
+        #nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
+        
+        ######### inicio
+
+        import networkx.algorithms.community as nxcom
+        #from matplotlib import pyplot as plt
+
+        plt.rcParams.update(plt.rcParamsDefault)
+        plt.rcParams.update({'figure.figsize': (15, 10)})
+        # get reproducible results
+        import random
+        from numpy import random as nprand
+        random.seed(123)
+        nprand.seed(123)
+        communities = sorted(nxcom.greedy_modularity_communities(G_authors), key=len, reverse=True)
+        print(f"The authors club has {len(communities)} communities.")
+                
+        def set_node_community(G, communities):
+            '''Add community to node attributes'''
+            for c, v_c in enumerate(communities):
+                for v in v_c:
+                    # Add 1 to save 0 for external edges
+                    G.nodes[v]['community'] = c + 1
+        def set_edge_community(G):
+            '''Find internal edges and add their community to their attributes'''
+            for v, w, in G.edges:
+                if G.nodes[v]['community'] == G.nodes[w]['community']:
+                    # Internal edge, mark with community
+                    G.edges[v, w]['community'] = G.nodes[v]['community']
+                else:
+                    # External edge, mark as 0
+                    G.edges[v, w]['community'] = 0
+        def get_color(i, r_off=1, g_off=1, b_off=1):
+            '''Assign a color to a vertex.'''
+            r0, g0, b0 = 0, 0, 0
+            n = 16
+            low, high = 0.1, 0.9
+            span = high - low
+            r = low + span * (((i + r_off) * 3) % n) / (n - 1)
+            g = low + span * (((i + g_off) * 5) % n) / (n - 1)
+            b = low + span * (((i + b_off) * 7) % n) / (n - 1)
+            return (r, g, b)     
+        
+        # Set node and edge communities
+        set_node_community(G_authors, communities)
+        set_edge_community(G_authors)
+        node_color = [get_color(G_authors.nodes[v]['community']) for v in G_authors.nodes]
+        # Set community color for edges between members of the same community (internal) and intra-community edges (external)
+        external = [(v, w) for v, w in G_authors.edges if G_authors.edges[v, w]['community'] == 0]
+        internal = [(v, w) for v, w in G_authors.edges if G_authors.edges[v, w]['community'] > 0]
+        internal_color = ['black' for e in internal]
+
+        karate_pos = nx.spring_layout(G_authors)
+        plt.rcParams.update({'figure.figsize': (15, 10)})
+        # Draw external edges
+        nx.draw_networkx(
+            G_authors,
+            pos=karate_pos,
+            node_size=0,
+            edgelist=external,
+            edge_color="silver")
+        # Draw nodes and internal edges
+        nx.draw_networkx(
+            G_authors, node_size=600, alpha=0.5,   linewidths=30,  
+            pos=karate_pos,
+            node_color=node_color,
+            edgelist=internal,
+            edge_color=internal_color)
+
+        ######### fim
+
         from pyvis.network import Network
-        import networkx as nx
         net = Network()
-        net.from_nx(g)
+        net.from_nx(G_authors)
         net.save_graph('figs/grafo'+lattes.renomeia[tipo]+tamanho+'Ano.html')
 
         plt.savefig('figs/grafo'+lattes.renomeia[tipo]+tamanho+'Ano.png', dpi=300, bbox_inches='tight')
@@ -797,12 +866,14 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
 
         s = '''
 A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
-de autores dos artigos __tipo3__.
+de autores dos artigos em __tipo____tipo3__.
+Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{link} 
+para uma melhor visualização.
 \\begin{figure}[h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/grafo__tipo____tipo2__Ano.png}
-\caption{Relacionamentos de autores dos artigos __tipo__ __tipo3__ 
-(ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{link})}
+\caption{Relacionamentos de autores dos artigos em __tipo__ __tipo3__ - ver
+\href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{link}}
 \label{figs:grafo__tipo____tipo2__Ano}
 \end{figure}
 '''
