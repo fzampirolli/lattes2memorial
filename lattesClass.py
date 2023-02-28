@@ -135,6 +135,7 @@ class lattes(object):
         os.system("rm figs/orient*")
         os.system("rm figs/evento*")
         os.system("rm figs/aprese*")
+        os.system("rm figs/grafo*")
         os.system("rm data/novoQualis2017-2020.csv")
         os.system("rm extras/dados.tex")
         os.system("rm **/*.aux")
@@ -785,22 +786,28 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
         #print(dic)
         g = nx.Graph(dic)
         nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
+        from pyvis.network import Network
+        import networkx as nx
+        net = Network()
+        net.from_nx(g)
+        net.save_graph('figs/grafo'+lattes.renomeia[tipo]+tamanho+'Ano.html')
+
         plt.savefig('figs/grafo'+lattes.renomeia[tipo]+tamanho+'Ano.png', dpi=300, bbox_inches='tight')
         plt.close()
 
         s = '''
-A Figura \\ref{figs:qualis__tipo____tipo2__Ano} mostra os relacionamentos
+A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
 de autores dos artigos __tipo3__.
 \\begin{figure}[h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/grafo__tipo____tipo2__Ano.png}
-\caption{Relacionamentos dos autores dos artigos __tipo__ __tipo3__}
+\caption{Relacionamentos de autores dos artigos __tipo__ __tipo3__ 
+(ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{link})}
 \label{figs:grafo__tipo____tipo2__Ano}
 \end{figure}
 '''
         ss0 += s.replace('__tipo__',
                             lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
-
 
         with open('./texLattes/'+lattes.renomeia[tipo]+tamanho+'.tex', 'w') as f:
             f.writelines(ss0)
