@@ -79,7 +79,7 @@ class lattes(object):
         # crédito: https://arademaker.github.io/blog/2012/02/15/lattes-to-bibtex.html
         # lattes.lerConfigJson()
         id = lattes.jsonConfigura["NUMERO-IDENTIFICADOR"]
-        os.system("git clone git@github.com:arademaker/SLattes.git")
+        #os.system("git clone git@github.com:arademaker/SLattes.git")
         os.system(f"xsltproc ./SLattes/lattes2mods.xsl {id}.xml > {id}.mods")
         # para validar xml >> mods
         # os.system("wget https://www.loc.gov/standards/mods/v3/mods-3-4.xsd")
@@ -142,7 +142,7 @@ class lattes(object):
         os.system("rm **/*.fdb_latexmk")
         os.system("rm **/*.fls")
         os.system("rm **/*.log")
-        os.system("rm -rf SLattes")
+        #os.system("rm -rf SLattes")
         os.system("rm mods-3-4*")
         print('\nlattes2memorial: Arquivos temporários removidos.\n')
 
