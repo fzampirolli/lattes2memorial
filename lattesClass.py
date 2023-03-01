@@ -867,13 +867,13 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
         s = '''
 A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
 de autores dos artigos em __tipo____tipo3__.
-Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{link} 
+Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{grafo com movimento} 
 para uma melhor visualização.
 \\begin{figure}[h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/grafo__tipo____tipo2__Ano.png}
 \caption{Relacionamentos de autores dos artigos em __tipo__ __tipo3__ - ver
-\href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{link}}
+\href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{grafo com movimento}}
 \label{figs:grafo__tipo____tipo2__Ano}
 \end{figure}
 '''
