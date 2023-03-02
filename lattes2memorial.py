@@ -24,6 +24,9 @@ if len(sys.argv) == 2 and sys.argv[1] == 'instala':
     print('\nlattes2memorial: bibliotecas necessárias instaladas.\n')
     exit(0)
 
+if not os.path.exists('texLattes'):
+    os.makedirs('texLattes')
+
 from lattesClass import *
 
 if len(sys.argv) == 2 and len(sys.argv[1]) == len('4127260763254001'):

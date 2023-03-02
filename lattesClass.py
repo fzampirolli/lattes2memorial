@@ -31,7 +31,6 @@ from PyPDF2 import PdfReader
 
 
 class lattes(object):
-
     #### INICIALIZATION ####
     dfRevistasUpper = None
     dfEventosUpper = None
@@ -72,14 +71,14 @@ class lattes(object):
         title = title.replace('\n', '').replace(' ', '')
         for k, v in lattes.jsonBibId.items():
             if v == title:
-                return '\cite{'+k+'}'
+                return '\cite{' + k + '}'
         return ''
 
     def lattes2bib():
         # crédito: https://arademaker.github.io/blog/2012/02/15/lattes-to-bibtex.html
         # lattes.lerConfigJson()
         id = lattes.jsonConfigura["NUMERO-IDENTIFICADOR"]
-        os.system("git clone git@github.com:arademaker/SLattes.git")
+        #os.system("git clone git@github.com:arademaker/SLattes.git")
         os.system(f"xsltproc ./SLattes/lattes2mods.xsl {id}.xml > {id}.mods")
         # para validar xml >> mods
         # os.system("wget https://www.loc.gov/standards/mods/v3/mods-3-4.xsd")
@@ -105,7 +104,7 @@ class lattes(object):
             lattes.jsonBibId[v["ID"]] = t
 
     def lerConfigJson(id):
-        if not os.path.exists(id+lattes.arquivoConfiguraJson):
+        if not os.path.exists(id + lattes.arquivoConfiguraJson):
             print(f"\nERRO: {id}{lattes.arquivoConfiguraJson} não existe!\n")
             exit(0)
         f = open(lattes.arquivoConfiguraJson)
@@ -128,8 +127,8 @@ class lattes(object):
 
     def limpaDadosGerados(id):
         if id:
-            print("rm "+id+"*")
-            os.system("rm "+id+"*")
+            print("rm " + id + "*")
+            os.system("rm " + id + "*")
         os.system("rm texLattes/*")
         os.system("rm figs/qualis*")
         os.system("rm figs/orient*")
@@ -142,35 +141,35 @@ class lattes(object):
         os.system("rm **/*.fdb_latexmk")
         os.system("rm **/*.fls")
         os.system("rm **/*.log")
-        os.system("rm -rf SLattes")
+        #os.system("rm -rf SLattes")
         os.system("rm mods-3-4*")
         print('\nlattes2memorial: Arquivos temporários removidos.\n')
 
     def saveJsonConfig(id):
         json_formatted_str = json.dumps(lattes.jsonConfigura, indent=2)
-        with open(id+lattes.arquivoConfiguraJson, "w") as outfile:
+        with open(id + lattes.arquivoConfiguraJson, "w") as outfile:
             outfile.write(json_formatted_str)
         outfile.close()
 
     def criaConfiguraJson(id):
         import zipfile
 
-        print('CV_'+id+'.zip')
-        if os.path.exists('CV_'+id+'.zip'):
-            with zipfile.ZipFile('CV_'+id+'.zip', "r") as zip_ref:
+        print('CV_' + id + '.zip')
+        if os.path.exists('CV_' + id + '.zip'):
+            with zipfile.ZipFile('CV_' + id + '.zip', "r") as zip_ref:
                 zip_ref.extractall("./")
         else:
             print('ERRO: não existe zip do seu lattes, com nome:',
-                  'CV_'+id+'.zip')
+                  'CV_' + id + '.zip')
             exit(0)
 
         lattes.NUMERO_IDENTIFICADOR = id
-        if not os.path.exists(id+lattes.arquivoConfiguraJson):
+        if not os.path.exists(id + lattes.arquivoConfiguraJson):
             lattes.jsonConfigura = dict()
             lattes.jsonConfigura["NUMERO-IDENTIFICADOR"] = id
             lattes.saveJsonConfig(id)
 
-        f = open(id+lattes.arquivoConfiguraJson)
+        f = open(id + lattes.arquivoConfiguraJson)
         lattes.jsonConfigura = json.load(f)
 
         return lattes.jsonConfigura
@@ -192,7 +191,8 @@ class lattes(object):
             print(
                 f'lattes2memorial: {lattes.jsonConfigura["QUALIS-REVISTA-CSV"]} não atualizado. Removê-lo para cc.')
 
-        lattes.jsonConfigura["QUALIS-REVISTA-URL"] = 'https://www.ufrgs.br/ppggeo/ppggeo/wp-content/uploads/2019/12/QUALIS-NOVO-1.pdf'
+        lattes.jsonConfigura[
+            "QUALIS-REVISTA-URL"] = 'https://www.ufrgs.br/ppggeo/ppggeo/wp-content/uploads/2019/12/QUALIS-NOVO-1.pdf'
         lattes.jsonConfigura["QUALIS-REVISTA-LINHA"] = './data/novoQualis2017-2020-Linha.csv'
         lattes.jsonConfigura["QUALIS-REVISTA-CSV"] = './data/novoQualis2017-2020.csv'
 
@@ -236,7 +236,7 @@ class lattes(object):
     def getQualisRevista(s):
         try:
             periodo = lattes.jsonConfigura["QUALIS-REVISTA-CSV"]
-            periodo = ' ('+periodo[-13:-4]+')'
+            periodo = ' (' + periodo[-13:-4] + ')'
             ss = lattes.dfRevistasUpper.loc[lattes.dfRevistasUpper['Titulo'] == s.upper(
             )]
             ss = ss.values[0][2] + ', ISSN ' + ss.values[0][0] + periodo
@@ -255,7 +255,8 @@ class lattes(object):
         if lattes.jsonConfigura == None:
             print("ERRO: confing não existe")
 
-        lattes.jsonConfigura["QUALIS-EVENTO-URL"] = 'https://www.gov.br/capes/pt-br/centrais-de-conteudo/documentos/avaliacao/09012022_RELATORIOQUALISEVENTOS20172020COMPUTACAO.PDF'
+        lattes.jsonConfigura[
+            "QUALIS-EVENTO-URL"] = 'https://www.gov.br/capes/pt-br/centrais-de-conteudo/documentos/avaliacao/09012022_RELATORIOQUALISEVENTOS20172020COMPUTACAO.PDF'
         file = "./data/sucupiraEventos2017-2020.csv"
         lattes.jsonConfigura["QUALIS-EVENTO-CSV"] = file
         lattes.saveJsonConfig(lattes.NUMERO_IDENTIFICADOR)
@@ -272,11 +273,11 @@ class lattes(object):
     def getQualisEvento(s):
         try:
             periodo = lattes.jsonConfigura["QUALIS-EVENTO-CSV"]
-            periodo = ' ('+periodo[-13:-4]+')'
+            periodo = ' (' + periodo[-13:-4] + ')'
             ss = lattes.dfEventosUpper.loc[lattes.dfEventosUpper['Nome do evento'] == s.upper(
             )]
             ss = ss.values[0][2] + ', Sigla ' + \
-                ss.values[0][0] + periodo
+                 ss.values[0][0] + periodo
         except:
             ss = 'SQ'
         return ss
@@ -292,12 +293,13 @@ class lattes(object):
         lattes.jsonLattes = json.loads(doc1)
 
         json_formatted_str = json.dumps(lattes.jsonLattes, indent=2)
-        with open(f0[:-4]+".json", "w") as outfile:
+        with open(f0[:-4] + ".json", "w") as outfile:
             outfile.write(json_formatted_str)
         outfile.close()
 
     def verificaID():
-        if lattes.jsonLattes['CURRICULO-VITAE']["@NUMERO-IDENTIFICADOR"] != lattes.jsonConfigura["NUMERO-IDENTIFICADOR"]:
+        if lattes.jsonLattes['CURRICULO-VITAE']["@NUMERO-IDENTIFICADOR"] != lattes.jsonConfigura[
+            "NUMERO-IDENTIFICADOR"]:
             print(
                 f"ERRO: ID de {lattes.arquivoConfiguraJson} é diferente do xml")
             exit(0)
@@ -320,11 +322,12 @@ class lattes(object):
 
         lattes.jsonConfigura['NOME-COMPLETO'] = d0['@NOME-COMPLETO']
         lattes.jsonConfigura["NOME-ORGAO"] = d0["ENDERECO"]["ENDERECO-PROFISSIONAL"]["@NOME-ORGAO"]
-        lattes.jsonConfigura["NOME-INSTITUICAO-EMPRESA"] = d0["ENDERECO"]["ENDERECO-PROFISSIONAL"]["@NOME-INSTITUICAO-EMPRESA"]
+        lattes.jsonConfigura["NOME-INSTITUICAO-EMPRESA"] = d0["ENDERECO"]["ENDERECO-PROFISSIONAL"][
+            "@NOME-INSTITUICAO-EMPRESA"]
         lattes.jsonConfigura["CIDADE"] = d0["ENDERECO"]["ENDERECO-PROFISSIONAL"]["@CIDADE"]
         lattes.jsonConfigura["E-MAIL"] = d0["ENDERECO"]["ENDERECO-PROFISSIONAL"]["@E-MAIL"]
         s = lattes.jsonLattes['CURRICULO-VITAE']["@DATA-ATUALIZACAO"]
-        lattes.jsonConfigura["DATA-ATUALIZACAO"] = s[:2]+'/'+s[2:4]+'/'+s[4:]
+        lattes.jsonConfigura["DATA-ATUALIZACAO"] = s[:2] + '/' + s[2:4] + '/' + s[4:]
 
         if not "ATUACOES-PROFISSIONAIS" in lattes.jsonLattes['CURRICULO-VITAE']['DADOS-GERAIS'].keys():
             print("Sem Atuações Profissionais")
@@ -350,7 +353,7 @@ class lattes(object):
             text = text.replace('__DATA-ATUALIZACAO__',
                                 lattes.jsonConfigura['DATA-ATUALIZACAO'])
         fd.close()
-        with open(file[:-5]+'.tex', 'w') as fd:
+        with open(file[:-5] + '.tex', 'w') as fd:
             fd.writelines(text)
         fd.close()
 
@@ -373,7 +376,7 @@ class lattes(object):
             ts = lattes.renomeia[tipo2] if tipo2 else ''
 
             if not d:
-                with open('./texLattes/Orientacoes'+tipo+ts[:4]+'.tex', 'w') as f:
+                with open('./texLattes/Orientacoes' + tipo + ts[:4] + '.tex', 'w') as f:
                     f.writelines('')
                 f.close()
                 return ''
@@ -391,16 +394,16 @@ class lattes(object):
                                     ano = i[vo[1]]["@ANO"]
                                     ss += ano + '. '
                                     ss += lattes.renomeia[i[vo[1]]
-                                                           ["@NATUREZA"]] + ' ('
+                                    ["@NATUREZA"]] + ' ('
                                     ss += i[vo[2]]["@NOME-DO-CURSO"] + ') - '
                                     ss += i[vo[2]
-                                            ]["@NOME-DA-INSTITUICAO"] + '. '
+                                          ]["@NOME-DA-INSTITUICAO"] + '. '
                                     if i[vo[2]]["@NOME-DA-AGENCIA"]:
                                         ss += i[vo[2]
-                                                ]["@NOME-DA-AGENCIA"] + '. '
+                                              ]["@NOME-DA-AGENCIA"] + '. '
                                     if tipo in ['Mestrado', 'Doutorado']:
                                         ss += lattes.renomeia[i[vo[2]]
-                                                               ["@TIPO-DE-ORIENTACAO"]] + '. '
+                                        ["@TIPO-DE-ORIENTACAO"]] + '. '
                                     ssLista.append([int(ano), ss])
 
             vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
@@ -442,14 +445,14 @@ considerando a data de início.
                     ax.set_title('Orientações por Ano (' + tipo + ')')
                 ax.set_ylabel("Quantidade")
                 # ax.set_xlabel('Qualis')
-                ax.set_ylim([0, int(1+1.1*max(frequencia))])
+                ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
 
                 pps = ax.bar(x, frequencia, label='population')
 
-                plt.savefig('figs/orientacoes'+tipo + ts[:4]+'.png')
+                plt.savefig('figs/orientacoes' + tipo + ts[:4] + '.png')
                 plt.close()
 
-            with open('./texLattes/Orientacoes'+tipo+ts[:4]+'.tex', 'w') as f:
+            with open('./texLattes/Orientacoes' + tipo + ts[:4] + '.tex', 'w') as f:
                 f.writelines(ss0)
             f.close()
 
@@ -473,7 +476,7 @@ considerando a data de início.
         d = lattes.jsonLattes["CURRICULO-VITAE"]["DADOS-COMPLEMENTARES"]
 
         if not d:
-            with open('./texLattes/OrientacoesAndamento'+tipo+'.tex', 'w') as f:
+            with open('./texLattes/OrientacoesAndamento' + tipo + '.tex', 'w') as f:
                 f.writelines('')
             f.close()
             return ''
@@ -491,28 +494,28 @@ considerando a data de início.
 
                                     ss = '\n\n\\item '
                                     ss += v1[vo[2]
-                                             ]["@NOME-DO-ORIENTANDO"] + '. '
+                                          ]["@NOME-DO-ORIENTANDO"] + '. '
                                     ss += v1[vo[1]
-                                             ]["@TITULO-DO-TRABALHO"] + '. '
+                                          ]["@TITULO-DO-TRABALHO"] + '. '
                                     ano = v1[vo[1]]["@ANO"]
                                     ss += ano + '. '
                                     ss += lattes.renomeia[v1[vo[1]]
-                                                          ["@NATUREZA"]] + ' ('
+                                    ["@NATUREZA"]] + ' ('
                                     ss += v1[vo[2]]["@NOME-CURSO"] + ') - '
                                     ss += v1[vo[2]]["@NOME-INSTITUICAO"] + '. '
                                     if v1[vo[2]]["@NOME-DA-AGENCIA"]:
                                         ss += v1[vo[2]
-                                                 ]["@NOME-DA-AGENCIA"] + '. '
+                                              ]["@NOME-DA-AGENCIA"] + '. '
                                     if tipo in ['Mestrado', 'Doutorado']:
                                         ss += lattes.renomeia[v1[vo[2]]
-                                                              ["@TIPO-DE-ORIENTACAO"]] + '. '
+                                        ["@TIPO-DE-ORIENTACAO"]] + '. '
                                     ssLista.append([int(ano), ss])
                         elif tipo in lattes.naturezaAndamento:
                             ss = '\n\n\\item '
                             ss += v0[vo[2]
-                                     ]["@NOME-DO-ORIENTANDO"] + '. '
+                                  ]["@NOME-DO-ORIENTANDO"] + '. '
                             ss += v0[vo[1]
-                                     ]["@TITULO-DO-TRABALHO"] + '. '
+                                  ]["@TITULO-DO-TRABALHO"] + '. '
                             ano = v0[vo[1]]["@ANO"]
                             ss += ano + '. '
                             ss += v0[vo[1]]["@NATUREZA"] + ' ('
@@ -520,29 +523,29 @@ considerando a data de início.
                             ss += v0[vo[2]]["@NOME-INSTITUICAO"] + '. '
                             if v0[vo[2]]["@NOME-DA-AGENCIA"]:
                                 ss += v0[vo[2]
-                                         ]["@NOME-DA-AGENCIA"] + '. '
+                                      ]["@NOME-DA-AGENCIA"] + '. '
                             if tipo in ['Mestrado', 'Doutorado']:
                                 ss += lattes.renomeia[v0[vo[2]]
-                                                        ["@TIPO-DE-ORIENTACAO"]] + '. '
+                                ["@TIPO-DE-ORIENTACAO"]] + '. '
                             ssLista.append([int(ano), ss])
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
         ss0 += '\n\n\\end{enumerate}\n'
 
-        if len(ss0) < 50: ss0='sem orientações e andamento - '+tipo
-        with open('./texLattes/OrientacoesAndamento'+tipo+'.tex', 'w') as f:
+        if len(ss0) < 50: ss0 = 'sem orientações e andamento - ' + tipo
+        with open('./texLattes/OrientacoesAndamento' + tipo + '.tex', 'w') as f:
             f.writelines(ss0)
         f.close()
 
     def pegaDadosArtigos(tipo='TRABALHO', tamanho="COMPLETO"):
 
         def ordenaArtigosAno(D, reverse=True):
-            valores = [(p['DADOS-BASICOS-DO-'+tipo]['@ANO-DO-'+tipo], p)
+            valores = [(p['DADOS-BASICOS-DO-' + tipo]['@ANO-DO-' + tipo], p)
                        for a, b in D.items() for p in b]
             return [t[1] for t in sorted(valores, key=lambda x: x[0], reverse=True)]
 
-        with open('./texLattes/'+lattes.renomeia[tipo]+tamanho+'.tex', 'w') as f:
+        with open('./texLattes/' + lattes.renomeia[tipo] + tamanho + '.tex', 'w') as f:
             f.writelines('')
         f.close()
 
@@ -562,46 +565,46 @@ considerando a data de início.
             D = lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA']['ARTIGOS-PUBLICADOS']
 
         D_order = ordenaArtigosAno(D)
-        
+
         autoresTodos = []
 
         qualisAno = dict()
         ss0 = '\\begin{enumerate}'
         for p in D_order:
             autores = []
-            if p['DADOS-BASICOS-DO-'+tipo]["@NATUREZA"] == tamanho:
+            if p['DADOS-BASICOS-DO-' + tipo]["@NATUREZA"] == tamanho:
 
                 ss0 += '\n\n\\item '
-                if p['DADOS-BASICOS-DO-'+tipo]['@DOI']:
-                    s = p['DADOS-BASICOS-DO-'+tipo]['@DOI']
+                if p['DADOS-BASICOS-DO-' + tipo]['@DOI']:
+                    s = p['DADOS-BASICOS-DO-' + tipo]['@DOI']
                     ss0 += '\\href{https://doi.org/' + s + \
-                        '}{{\\color{white}\\hl{\\textbf{doi$>$}}}} '
-                elif p['DADOS-BASICOS-DO-'+tipo]['@HOME-PAGE-DO-TRABALHO']:
-                    ss0 += '\\href{' + p['DADOS-BASICOS-DO-'+tipo]['@HOME-PAGE-DO-TRABALHO'][1:-1] + \
-                        '}{{\\color{yellow}\\hl{\\textbf{url$>$}}}} '
+                           '}{{\\color{white}\\hl{\\textbf{doi$>$}}}} '
+                elif p['DADOS-BASICOS-DO-' + tipo]['@HOME-PAGE-DO-TRABALHO']:
+                    ss0 += '\\href{' + p['DADOS-BASICOS-DO-' + tipo]['@HOME-PAGE-DO-TRABALHO'][1:-1] + \
+                           '}{{\\color{yellow}\\hl{\\textbf{url$>$}}}} '
                 ano = ''
-                
+
                 if isinstance(p['AUTORES'], list):
                     for a in p['AUTORES']:
                         if a['@NOME-PARA-CITACAO']:
                             a0 = a['@NOME-PARA-CITACAO'].upper()
-                            ss0 += a0+"; "
+                            ss0 += a0 + "; "
                             autores.append(a0)
                 elif p['AUTORES']['@NOME-PARA-CITACAO']:
                     a = p['AUTORES']['@NOME-PARA-CITACAO'].upper()
-                    ss0 += a+"; "
+                    ss0 += a + "; "
                     autores.append(a0)
 
-                ss0 = ss0[: -2]+'. '
+                ss0 = ss0[: -2] + '. '
 
-                for c, d in p['DADOS-BASICOS-DO-'+tipo].items():
-                    if d and c[1:] == 'TITULO-DO-'+tipo:
+                for c, d in p['DADOS-BASICOS-DO-' + tipo].items():
+                    if d and c[1:] == 'TITULO-DO-' + tipo:
                         ss0 += d + '. '
                         cite = lattes.pegaIDbib(d)
-                    if d and c[1:] == 'ANO-DO-'+tipo:
+                    if d and c[1:] == 'ANO-DO-' + tipo:
                         ano = d
 
-                for c, d in p['DETALHAMENTO-DO-'+tipo].items():
+                for c, d in p['DETALHAMENTO-DO-' + tipo].items():
                     if d and c[1:] == 'TITULO-DO-PERIODICO-OU-REVISTA' or c[1:] == "NOME-DO-EVENTO":
                         ss0 += d.upper()
                         ss0 += '. ' + ano + '. ' + cite
@@ -622,7 +625,7 @@ considerando a data de início.
 
         ss0 += '\n\n\\end{enumerate}\n'
 
-        ss0 = ss0.replace('&#8208;', '-').replace('&', '\&')
+        ss0 = ss0.replace('&#8208;', '-').replace('&', '\&').replace('`', "'")
 
         try:
             qualisAno['C'] = qualisAno.pop('C,')  # rename
@@ -644,7 +647,7 @@ considerando a data de início.
             ax.set_title('Artigos por Qualis em ' + lattes.renomeia[tipo])
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
-            ax.set_ylim([0, int(1+1.1*max(frequencia))])
+            ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
 
             pps = ax.bar(x, frequencia, label='population')
 
@@ -659,7 +662,7 @@ considerando a data de início.
                             ha='center', va='bottom')
                 c += 1
 
-            plt.savefig('figs/qualis'+lattes.renomeia[tipo]+'.png')
+            plt.savefig('figs/qualis' + lattes.renomeia[tipo] + '.png')
             plt.close()
 
             s = '''
@@ -675,7 +678,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
 
         # DESENHA FIGURA QUALIS POR ANO
         if len(qualisAno):
-                
+
             qualisAno2 = dict()
             for k, q in qualisAno.items():
                 for a in q:
@@ -685,13 +688,13 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                         qualisAno2[a] = [k]
 
             listaQualis = ['A1', 'A2', 'A3', 'A4',
-                        'B1', 'B2', 'B3', 'B4', 'C', 'SQ']
+                           'B1', 'B2', 'B3', 'B4', 'C', 'SQ']
             qualisAno3 = dict()
             for k, q in qualisAno.items():
                 for a in q:
                     if a in qualisAno3.keys():
                         qualisAno3[a] += len(listaQualis) - \
-                            listaQualis.index(k)
+                                         listaQualis.index(k)
                     else:
                         qualisAno3[a] = len(listaQualis) - listaQualis.index(k)
             myKeys = [int(i) for i in qualisAno3.keys()]
@@ -710,14 +713,14 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                 tamanhoStr += ' (Resumo)'
 
             ax.set_title('Artigos por Ano em ' +
-                        lattes.renomeia[tipo] + tamanhoStr)
+                         lattes.renomeia[tipo] + tamanhoStr)
             ax.set_ylabel("Soma (A1=10, ..., C=2, SQ=1) ")
             # ax.set_xlabel('Anos')
 
             ax.tick_params(axis='x', labelrotation=90)
 
             pps = ax.bar(anos,
-                        qualisAno3.values(), label='population')
+                         qualisAno3.values(), label='population')
 
             vet = []
             tmax = 0
@@ -726,13 +729,13 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                 for q in listaQualis:
                     if q in v:
                         if v.count(q) > 1:
-                            s += str(v.count(q))+q+'+'
+                            s += str(v.count(q)) + q + '+'
                         else:
-                            s += q+'+'
+                            s += q + '+'
                 tmax = max(tmax, len(s))
                 vet.append(s[:-1])
 
-            ax.set_ylim([0, 2*tmax + int(max(qualisAno3.values()))])
+            ax.set_ylim([0, 2 * tmax + int(max(qualisAno3.values()))])
 
             c = 0
             for p in pps:
@@ -744,7 +747,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                             ha='center', va='bottom')
                 c += 1
 
-            plt.savefig('figs/qualis'+lattes.renomeia[tipo]+tamanho+'Ano.png')
+            plt.savefig('figs/qualis' + lattes.renomeia[tipo] + tamanho + 'Ano.png')
             plt.close()
 
             s = '''
@@ -760,8 +763,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
     \end{figure}
     '''
             ss0 += s.replace('__tipo__',
-                            lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
-
+                             lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
 
         # DESENHA FIGURA RELAÇÕES DE AUTORES
         import itertools
@@ -777,20 +779,20 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                 if r[0] in dic.keys():
                     dic[r[0]].append(r[1])
                 else:
-                    dic[r[0]] =[r[1]]
+                    dic[r[0]] = [r[1]]
                 if r[1] in dic.keys():
                     dic[r[1]].append(r[0])
                 else:
-                    dic[r[1]] =[r[0]]  
+                    dic[r[1]] = [r[0]]
         plt.figure(figsize=[10, 10])
-        #print(dic)
+        # print(dic)
         G_authors = nx.Graph(dic)
-        #nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
-        
+        # nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
+
         ######### inicio
 
         import networkx.algorithms.community as nxcom
-        #from matplotlib import pyplot as plt
+        # from matplotlib import pyplot as plt
 
         plt.rcParams.update(plt.rcParamsDefault)
         plt.rcParams.update({'figure.figsize': (15, 10)})
@@ -801,13 +803,14 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
         nprand.seed(123)
         communities = sorted(nxcom.greedy_modularity_communities(G_authors), key=len, reverse=True)
         print(f"The authors club has {len(communities)} communities.")
-                
+
         def set_node_community(G, communities):
             '''Add community to node attributes'''
             for c, v_c in enumerate(communities):
                 for v in v_c:
                     # Add 1 to save 0 for external edges
                     G.nodes[v]['community'] = c + 1
+
         def set_edge_community(G):
             '''Find internal edges and add their community to their attributes'''
             for v, w, in G.edges:
@@ -817,6 +820,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                 else:
                     # External edge, mark as 0
                     G.edges[v, w]['community'] = 0
+
         def get_color(i, r_off=1, g_off=1, b_off=1):
             '''Assign a color to a vertex.'''
             r0, g0, b0 = 0, 0, 0
@@ -826,9 +830,10 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             r = low + span * (((i + r_off) * 3) % n) / (n - 1)
             g = low + span * (((i + g_off) * 5) % n) / (n - 1)
             b = low + span * (((i + b_off) * 7) % n) / (n - 1)
-            return (r, g, b)     
-        
-        # Set node and edge communities
+            return (r, g, b)
+
+            # Set node and edge communities
+
         set_node_community(G_authors, communities)
         set_edge_community(G_authors)
         node_color = [get_color(G_authors.nodes[v]['community']) for v in G_authors.nodes]
@@ -848,7 +853,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             edge_color="silver")
         # Draw nodes and internal edges
         nx.draw_networkx(
-            G_authors, node_size=600, alpha=0.5,   linewidths=30,  
+            G_authors, node_size=600, alpha=0.5, linewidths=30,
             pos=karate_pos,
             node_color=node_color,
             edgelist=internal,
@@ -859,9 +864,9 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
         from pyvis.network import Network
         net = Network()
         net.from_nx(G_authors)
-        net.save_graph('figs/grafo'+lattes.renomeia[tipo]+tamanho+'Ano.html')
+        net.save_graph('figs/grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.html')
 
-        plt.savefig('figs/grafo'+lattes.renomeia[tipo]+tamanho+'Ano.png', dpi=300, bbox_inches='tight')
+        plt.savefig('figs/grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.png', dpi=300, bbox_inches='tight')
         plt.close()
 
         s = '''
@@ -878,9 +883,9 @@ para uma melhor visualização.
 \end{figure}
 '''
         ss0 += s.replace('__tipo__',
-                            lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
+                         lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
 
-        with open('./texLattes/'+lattes.renomeia[tipo]+tamanho+'.tex', 'w') as f:
+        with open('./texLattes/' + lattes.renomeia[tipo] + tamanho + '.tex', 'w') as f:
             f.writelines(ss0)
         f.close()
 
@@ -888,10 +893,10 @@ para uma melhor visualização.
         ss0 = '\\begin{enumerate}'
         ssLista = []
         for tipoEvento in lattes.eventos:
-            evento = ["PARTICIPACAO-EM-"+tipoEvento,
-                      "DADOS-BASICOS-DA-PARTICIPACAO-EM-"+tipoEvento,
-                      "DETALHAMENTO-DA-PARTICIPACAO-EM-"+tipoEvento,
-                      "PARTICIPANTE-DE-EVENTOS-CONGRESSOS"+tipoEvento]
+            evento = ["PARTICIPACAO-EM-" + tipoEvento,
+                      "DADOS-BASICOS-DA-PARTICIPACAO-EM-" + tipoEvento,
+                      "DETALHAMENTO-DA-PARTICIPACAO-EM-" + tipoEvento,
+                      "PARTICIPANTE-DE-EVENTOS-CONGRESSOS" + tipoEvento]
             d = lattes.jsonLattes["CURRICULO-VITAE"]["DADOS-COMPLEMENTARES"]
             for k, v in d.items():
                 if k == "PARTICIPACAO-EM-EVENTOS-CONGRESSOS":
@@ -910,14 +915,14 @@ para uma melhor visualização.
                                     if titulo:
                                         ss += titulo + '. '
                                     ss += v1[evento[2]
-                                             ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
+                                          ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
                                     ano = v1[evento[1]]["@ANO"]
                                     t = v1[evento[2]]["@CIDADE-DO-EVENTO"]
                                     if t:
                                         ss += t + '. '
                                     ss += ano + ' ('
                                     ss += v1[evento[1]]["@NATUREZA"].lower() + \
-                                        '). '
+                                          '). '
                                     t = v1[evento[1]]['@TIPO-PARTICIPACAO']
                                     if t:
                                         ss += t + '. '
@@ -953,16 +958,16 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
             ax.set_title('Eventos por Ano (' + tipo + ')')
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
-            ax.set_ylim([0, int(1+1.1*max(frequencia))])
+            ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
 
             pps = ax.bar(x, frequencia, label='population')
 
-            plt.savefig('figs/eventos'+tipo + '.png')
+            plt.savefig('figs/eventos' + tipo + '.png')
             plt.close()
 
         if len(ss0) < 50: ss0 = ''
 
-        with open('./texLattes/Eventos'+tipo+'.tex', 'w') as f:
+        with open('./texLattes/Eventos' + tipo + '.tex', 'w') as f:
             f.writelines(ss0)
         f.close()
 
@@ -971,7 +976,7 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
                   "DADOS-BASICOS-DA-APRESENTACAO-DE-TRABALHO",
                   "DETALHAMENTO-DA-APRESENTACAO-DE-TRABALHO"]
         d = lattes.jsonLattes["CURRICULO-VITAE"]["PRODUCAO-TECNICA"]
-        
+
         if not d:
             with open('./texLattes/Apresentacoes.tex', 'w') as f:
                 f.writelines('')
@@ -993,14 +998,14 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
                             if titulo:
                                 ss += titulo + '. '
                             ss += v1[evento[2]
-                                     ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
+                                  ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
                             ano = v1[evento[1]]["@ANO"]
                             t = v1[evento[2]]["@CIDADE-DA-APRESENTACAO"]
                             if t:
                                 ss += t + '. '
                             ss += ano + ' ('
                             ss += v1[evento[1]]["@NATUREZA"].lower() + \
-                                '). '
+                                  '). '
                             ss += lattes.pegaIDbib(titulo)
                             ssLista.append([int(ano), ss])
 
@@ -1033,7 +1038,7 @@ A Figura \\ref{figs:apresentacoes} mostra o número de apresentações por ano.
             ax.set_title('Apresentações por Ano')
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
-            ax.set_ylim([0, int(1+1.1*max(frequencia))])
+            ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
 
             pps = ax.bar(x, frequencia, label='population')
 
