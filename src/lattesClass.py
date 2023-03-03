@@ -450,7 +450,8 @@ considerando a data de início.
 
                 pps = ax.bar(x, frequencia, label='population')
 
-                plt.savefig('figs/orientacoes' + tipo + ts[:4] + '.png')
+                plt.savefig('figs/orientacoes' + tipo +
+                            ts[:4] + '.png', dpi=300, bbox_inches='tight')
                 plt.close()
 
             if len(ss0) < 100:
@@ -669,7 +670,8 @@ considerando a data de início.
                             ha='center', va='bottom')
                 c += 1
 
-            plt.savefig('figs/qualis' + lattes.renomeia[tipo] + '.png')
+            plt.savefig(
+                'figs/qualis' + lattes.renomeia[tipo] + '.png', dpi=300, bbox_inches='tight')
             plt.close()
 
             s = '''
@@ -755,7 +757,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                 c += 1
 
             plt.savefig('figs/qualis' +
-                        lattes.renomeia[tipo] + tamanho + 'Ano.png')
+                        lattes.renomeia[tipo] + tamanho + 'Ano.png', dpi=300, bbox_inches='tight')
             plt.close()
 
             s = '''
@@ -809,11 +811,12 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             # get reproducible results
             import random
             from numpy import random as nprand
-            random.seed(123)
-            nprand.seed(123)
+            random.seed(131)
+            nprand.seed(131)
             communities = sorted(nxcom.greedy_modularity_communities(
                 G_authors), key=len, reverse=True)
-            print(f"The authors club has {len(communities)} communities.")
+            print(
+                f"O agrupamento de autores em {len(communities)} comunidades em {lattes.renomeia[tipo]} ({tamanho}).")
 
             def set_node_community(G, communities):
                 '''Add community to node attributes'''
@@ -981,7 +984,8 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
 
             pps = ax.bar(x, frequencia, label='population')
 
-            plt.savefig('figs/eventos' + tipo + '.png')
+            plt.savefig('figs/eventos' + tipo + '.png',
+                        dpi=300, bbox_inches='tight')
             plt.close()
 
         if len(ss0) < 100:
@@ -1062,7 +1066,7 @@ A Figura \\ref{figs:apresentacoes} mostra o número de apresentações por ano.
 
             pps = ax.bar(x, frequencia, label='population')
 
-            plt.savefig('figs/apresentacoes.png')
+            plt.savefig('figs/apresentacoes.png', dpi=300, bbox_inches='tight')
             plt.close()
 
         with open('./texLattes/Apresentacoes.tex', 'w') as f:

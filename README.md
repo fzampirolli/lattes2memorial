@@ -14,6 +14,8 @@ Créditos:
 * https://pt.overleaf.com/latex/templates/template-ufabc-dissertacao/zmwgdkcsrxjb (adaptado)
 * https://arademaker.github.io/blog/2012/02/15/lattes-to-bibtex.html
 * https://ppgcc.github.io/discentesPPGCC/pt-BR/qualis/
+* `networkx.algorithms.community` para agrupamento de autores
+* `pyvis.network` para grafo com movimento de agrupamento de autores
 
 # Instalar python, pip e git (se ainda não tiver instalado)
 
