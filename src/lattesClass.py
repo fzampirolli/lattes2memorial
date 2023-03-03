@@ -545,10 +545,13 @@ considerando a data de início.
                        for a, b in D.items() for p in b]
             return [t[1] for t in sorted(valores, key=lambda x: x[0], reverse=True)]
 
+        # with open('./texLattes/' + lattes.renomeia[tipo] + tamanho.upper() + '.tex', 'w') as f:
+        #     f.writelines('')
+        # f.close()
         with open('./texLattes/' + lattes.renomeia[tipo] + tamanho + '.tex', 'w') as f:
-            f.writelines('')
+            f.writelines('vazio')
         f.close()
-
+        
         if tipo == 'TRABALHO':
             if not lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA']:
                 return ''
