@@ -78,7 +78,7 @@ class lattes(object):
         # crédito: https://arademaker.github.io/blog/2012/02/15/lattes-to-bibtex.html
         # lattes.lerConfigJson()
         id = lattes.jsonConfigura["NUMERO-IDENTIFICADOR"]
-        #os.system("git clone git@github.com:arademaker/SLattes.git")
+        # os.system("git clone git@github.com:arademaker/SLattes.git")
         os.system(f"xsltproc ./SLattes/lattes2mods.xsl {id}.xml > {id}.mods")
         # para validar xml >> mods
         # os.system("wget https://www.loc.gov/standards/mods/v3/mods-3-4.xsd")
@@ -141,7 +141,7 @@ class lattes(object):
         os.system("rm **/*.fdb_latexmk")
         os.system("rm **/*.fls")
         os.system("rm **/*.log")
-        #os.system("rm -rf SLattes")
+        # os.system("rm -rf SLattes")
         os.system("rm mods-3-4*")
         print('\nlattes2memorial: Arquivos temporários removidos.\n')
 
@@ -277,7 +277,7 @@ class lattes(object):
             ss = lattes.dfEventosUpper.loc[lattes.dfEventosUpper['Nome do evento'] == s.upper(
             )]
             ss = ss.values[0][2] + ', Sigla ' + \
-                 ss.values[0][0] + periodo
+                ss.values[0][0] + periodo
         except:
             ss = 'SQ'
         return ss
@@ -299,14 +299,14 @@ class lattes(object):
 
     def verificaID():
         if lattes.jsonLattes['CURRICULO-VITAE']["@NUMERO-IDENTIFICADOR"] != lattes.jsonConfigura[
-            "NUMERO-IDENTIFICADOR"]:
+                "NUMERO-IDENTIFICADOR"]:
             print(
                 f"ERRO: ID de {lattes.arquivoConfiguraJson} é diferente do xml")
             exit(0)
 
     def pegaDadosGerais(id):
-        if not os.path.exists(lattes.arquivoConfiguraJson):
-            print(f"ERRO: {id}{lattes.arquivoConfiguraJson} não existe!")
+        # if not os.path.exists(lattes.arquivoConfiguraJson):
+        #    print(f"ERRO: {id}{lattes.arquivoConfiguraJson} não existe!")
         d0 = lattes.jsonLattes['CURRICULO-VITAE']['DADOS-GERAIS']
 
         if not "RESUMO-CV" in d0.keys():
@@ -327,7 +327,8 @@ class lattes(object):
         lattes.jsonConfigura["CIDADE"] = d0["ENDERECO"]["ENDERECO-PROFISSIONAL"]["@CIDADE"]
         lattes.jsonConfigura["E-MAIL"] = d0["ENDERECO"]["ENDERECO-PROFISSIONAL"]["@E-MAIL"]
         s = lattes.jsonLattes['CURRICULO-VITAE']["@DATA-ATUALIZACAO"]
-        lattes.jsonConfigura["DATA-ATUALIZACAO"] = s[:2] + '/' + s[2:4] + '/' + s[4:]
+        lattes.jsonConfigura["DATA-ATUALIZACAO"] = s[:2] + \
+            '/' + s[2:4] + '/' + s[4:]
 
         if not "ATUACOES-PROFISSIONAIS" in lattes.jsonLattes['CURRICULO-VITAE']['DADOS-GERAIS'].keys():
             print("Sem Atuações Profissionais")
@@ -394,16 +395,16 @@ class lattes(object):
                                     ano = i[vo[1]]["@ANO"]
                                     ss += ano + '. '
                                     ss += lattes.renomeia[i[vo[1]]
-                                    ["@NATUREZA"]] + ' ('
+                                                          ["@NATUREZA"]] + ' ('
                                     ss += i[vo[2]]["@NOME-DO-CURSO"] + ') - '
                                     ss += i[vo[2]
-                                          ]["@NOME-DA-INSTITUICAO"] + '. '
+                                            ]["@NOME-DA-INSTITUICAO"] + '. '
                                     if i[vo[2]]["@NOME-DA-AGENCIA"]:
                                         ss += i[vo[2]
-                                              ]["@NOME-DA-AGENCIA"] + '. '
+                                                ]["@NOME-DA-AGENCIA"] + '. '
                                     if tipo in ['Mestrado', 'Doutorado']:
                                         ss += lattes.renomeia[i[vo[2]]
-                                        ["@TIPO-DE-ORIENTACAO"]] + '. '
+                                                              ["@TIPO-DE-ORIENTACAO"]] + '. '
                                     ssLista.append([int(ano), ss])
 
             vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
@@ -452,6 +453,8 @@ considerando a data de início.
                 plt.savefig('figs/orientacoes' + tipo + ts[:4] + '.png')
                 plt.close()
 
+            if len(ss0) < 100:
+                ss0 = 'sem dados'
             with open('./texLattes/Orientacoes' + tipo + ts[:4] + '.tex', 'w') as f:
                 f.writelines(ss0)
             f.close()
@@ -494,28 +497,28 @@ considerando a data de início.
 
                                     ss = '\n\n\\item '
                                     ss += v1[vo[2]
-                                          ]["@NOME-DO-ORIENTANDO"] + '. '
+                                             ]["@NOME-DO-ORIENTANDO"] + '. '
                                     ss += v1[vo[1]
-                                          ]["@TITULO-DO-TRABALHO"] + '. '
+                                             ]["@TITULO-DO-TRABALHO"] + '. '
                                     ano = v1[vo[1]]["@ANO"]
                                     ss += ano + '. '
                                     ss += lattes.renomeia[v1[vo[1]]
-                                    ["@NATUREZA"]] + ' ('
+                                                          ["@NATUREZA"]] + ' ('
                                     ss += v1[vo[2]]["@NOME-CURSO"] + ') - '
                                     ss += v1[vo[2]]["@NOME-INSTITUICAO"] + '. '
                                     if v1[vo[2]]["@NOME-DA-AGENCIA"]:
                                         ss += v1[vo[2]
-                                              ]["@NOME-DA-AGENCIA"] + '. '
+                                                 ]["@NOME-DA-AGENCIA"] + '. '
                                     if tipo in ['Mestrado', 'Doutorado']:
                                         ss += lattes.renomeia[v1[vo[2]]
-                                        ["@TIPO-DE-ORIENTACAO"]] + '. '
+                                                              ["@TIPO-DE-ORIENTACAO"]] + '. '
                                     ssLista.append([int(ano), ss])
                         elif tipo in lattes.naturezaAndamento:
                             ss = '\n\n\\item '
                             ss += v0[vo[2]
-                                  ]["@NOME-DO-ORIENTANDO"] + '. '
+                                     ]["@NOME-DO-ORIENTANDO"] + '. '
                             ss += v0[vo[1]
-                                  ]["@TITULO-DO-TRABALHO"] + '. '
+                                     ]["@TITULO-DO-TRABALHO"] + '. '
                             ano = v0[vo[1]]["@ANO"]
                             ss += ano + '. '
                             ss += v0[vo[1]]["@NATUREZA"] + ' ('
@@ -523,17 +526,18 @@ considerando a data de início.
                             ss += v0[vo[2]]["@NOME-INSTITUICAO"] + '. '
                             if v0[vo[2]]["@NOME-DA-AGENCIA"]:
                                 ss += v0[vo[2]
-                                      ]["@NOME-DA-AGENCIA"] + '. '
+                                         ]["@NOME-DA-AGENCIA"] + '. '
                             if tipo in ['Mestrado', 'Doutorado']:
                                 ss += lattes.renomeia[v0[vo[2]]
-                                ["@TIPO-DE-ORIENTACAO"]] + '. '
+                                                      ["@TIPO-DE-ORIENTACAO"]] + '. '
                             ssLista.append([int(ano), ss])
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
         ss0 += '\n\n\\end{enumerate}\n'
 
-        if len(ss0) < 50: ss0 = 'sem orientações e andamento - ' + tipo
+        if len(ss0) < 50:
+            ss0 = 'sem orientações e andamento - ' + tipo
         with open('./texLattes/OrientacoesAndamento' + tipo + '.tex', 'w') as f:
             f.writelines(ss0)
         f.close()
@@ -551,7 +555,7 @@ considerando a data de início.
         with open('./texLattes/' + lattes.renomeia[tipo] + tamanho + '.tex', 'w') as f:
             f.writelines('vazio')
         f.close()
-        
+
         if tipo == 'TRABALHO':
             if not lattes.jsonLattes['CURRICULO-VITAE']['PRODUCAO-BIBLIOGRAFICA']:
                 return ''
@@ -697,7 +701,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                 for a in q:
                     if a in qualisAno3.keys():
                         qualisAno3[a] += len(listaQualis) - \
-                                         listaQualis.index(k)
+                            listaQualis.index(k)
                     else:
                         qualisAno3[a] = len(listaQualis) - listaQualis.index(k)
             myKeys = [int(i) for i in qualisAno3.keys()]
@@ -750,7 +754,8 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                             ha='center', va='bottom')
                 c += 1
 
-            plt.savefig('figs/qualis' + lattes.renomeia[tipo] + tamanho + 'Ano.png')
+            plt.savefig('figs/qualis' +
+                        lattes.renomeia[tipo] + tamanho + 'Ano.png')
             plt.close()
 
             s = '''
@@ -768,125 +773,136 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             ss0 += s.replace('__tipo__',
                              lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
 
-        # DESENHA FIGURA RELAÇÕES DE AUTORES
-        import itertools
-        import networkx as nx
+        if len(autoresTodos):
 
-        dic = {}
-        for p in autoresTodos:
-            aa = []
-            for a in p:
-                s = a.split(',')[0].lower()
-                aa.append(s)
-            for r in list(itertools.combinations(aa, 2)):
-                if r[0] in dic.keys():
-                    dic[r[0]].append(r[1])
-                else:
-                    dic[r[0]] = [r[1]]
-                if r[1] in dic.keys():
-                    dic[r[1]].append(r[0])
-                else:
-                    dic[r[1]] = [r[0]]
-        plt.figure(figsize=[10, 10])
-        # print(dic)
-        G_authors = nx.Graph(dic)
-        # nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
+            # DESENHA FIGURA RELAÇÕES DE AUTORES
+            import itertools
+            import networkx as nx
 
-        ######### inicio
+            dic = {}
+            for p in autoresTodos:
+                aa = []
+                for a in p:
+                    s = a.split(',')[0].lower()
+                    aa.append(s)
+                for r in list(itertools.combinations(aa, 2)):
+                    if r[0] in dic.keys():
+                        dic[r[0]].append(r[1])
+                    else:
+                        dic[r[0]] = [r[1]]
+                    if r[1] in dic.keys():
+                        dic[r[1]].append(r[0])
+                    else:
+                        dic[r[1]] = [r[0]]
+            plt.figure(figsize=[10, 10])
+            # print(dic)
+            G_authors = nx.Graph(dic)
+            # nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
 
-        import networkx.algorithms.community as nxcom
-        # from matplotlib import pyplot as plt
+            # inicio
 
-        plt.rcParams.update(plt.rcParamsDefault)
-        plt.rcParams.update({'figure.figsize': (15, 10)})
-        # get reproducible results
-        import random
-        from numpy import random as nprand
-        random.seed(123)
-        nprand.seed(123)
-        communities = sorted(nxcom.greedy_modularity_communities(G_authors), key=len, reverse=True)
-        print(f"The authors club has {len(communities)} communities.")
+            import networkx.algorithms.community as nxcom
+            # from matplotlib import pyplot as plt
 
-        def set_node_community(G, communities):
-            '''Add community to node attributes'''
-            for c, v_c in enumerate(communities):
-                for v in v_c:
-                    # Add 1 to save 0 for external edges
-                    G.nodes[v]['community'] = c + 1
+            plt.rcParams.update(plt.rcParamsDefault)
+            plt.rcParams.update({'figure.figsize': (15, 10)})
+            # get reproducible results
+            import random
+            from numpy import random as nprand
+            random.seed(123)
+            nprand.seed(123)
+            communities = sorted(nxcom.greedy_modularity_communities(
+                G_authors), key=len, reverse=True)
+            print(f"The authors club has {len(communities)} communities.")
 
-        def set_edge_community(G):
-            '''Find internal edges and add their community to their attributes'''
-            for v, w, in G.edges:
-                if G.nodes[v]['community'] == G.nodes[w]['community']:
-                    # Internal edge, mark with community
-                    G.edges[v, w]['community'] = G.nodes[v]['community']
-                else:
-                    # External edge, mark as 0
-                    G.edges[v, w]['community'] = 0
+            def set_node_community(G, communities):
+                '''Add community to node attributes'''
+                for c, v_c in enumerate(communities):
+                    for v in v_c:
+                        # Add 1 to save 0 for external edges
+                        G.nodes[v]['community'] = c + 1
 
-        def get_color(i, r_off=1, g_off=1, b_off=1):
-            '''Assign a color to a vertex.'''
-            r0, g0, b0 = 0, 0, 0
-            n = 16
-            low, high = 0.1, 0.9
-            span = high - low
-            r = low + span * (((i + r_off) * 3) % n) / (n - 1)
-            g = low + span * (((i + g_off) * 5) % n) / (n - 1)
-            b = low + span * (((i + b_off) * 7) % n) / (n - 1)
-            return (r, g, b)
+            def set_edge_community(G):
+                '''Find internal edges and add their community to their attributes'''
+                for v, w, in G.edges:
+                    if G.nodes[v]['community'] == G.nodes[w]['community']:
+                        # Internal edge, mark with community
+                        G.edges[v, w]['community'] = G.nodes[v]['community']
+                    else:
+                        # External edge, mark as 0
+                        G.edges[v, w]['community'] = 0
 
-            # Set node and edge communities
+            def get_color(i, r_off=1, g_off=1, b_off=1):
+                '''Assign a color to a vertex.'''
+                r0, g0, b0 = 0, 0, 0
+                n = 16
+                low, high = 0.1, 0.9
+                span = high - low
+                r = low + span * (((i + r_off) * 3) % n) / (n - 1)
+                g = low + span * (((i + g_off) * 5) % n) / (n - 1)
+                b = low + span * (((i + b_off) * 7) % n) / (n - 1)
+                return (r, g, b)
 
-        set_node_community(G_authors, communities)
-        set_edge_community(G_authors)
-        node_color = [get_color(G_authors.nodes[v]['community']) for v in G_authors.nodes]
-        # Set community color for edges between members of the same community (internal) and intra-community edges (external)
-        external = [(v, w) for v, w in G_authors.edges if G_authors.edges[v, w]['community'] == 0]
-        internal = [(v, w) for v, w in G_authors.edges if G_authors.edges[v, w]['community'] > 0]
-        internal_color = ['black' for e in internal]
+                # Set node and edge communities
 
-        karate_pos = nx.spring_layout(G_authors)
-        plt.rcParams.update({'figure.figsize': (15, 10)})
-        # Draw external edges
-        nx.draw_networkx(
-            G_authors,
-            pos=karate_pos,
-            node_size=0,
-            edgelist=external,
-            edge_color="silver")
-        # Draw nodes and internal edges
-        nx.draw_networkx(
-            G_authors, node_size=600, alpha=0.5, linewidths=30,
-            pos=karate_pos,
-            node_color=node_color,
-            edgelist=internal,
-            edge_color=internal_color)
+            set_node_community(G_authors, communities)
+            set_edge_community(G_authors)
+            node_color = [get_color(G_authors.nodes[v]['community'])
+                          for v in G_authors.nodes]
+            # Set community color for edges between members of the same community (internal) and intra-community edges (external)
+            external = [
+                (v, w) for v, w in G_authors.edges if G_authors.edges[v, w]['community'] == 0]
+            internal = [
+                (v, w) for v, w in G_authors.edges if G_authors.edges[v, w]['community'] > 0]
+            internal_color = ['black' for e in internal]
 
-        ######### fim
+            karate_pos = nx.spring_layout(G_authors)
+            plt.rcParams.update({'figure.figsize': (15, 10)})
+            # Draw external edges
+            nx.draw_networkx(
+                G_authors,
+                pos=karate_pos,
+                node_size=0,
+                edgelist=external,
+                edge_color="silver")
+            # Draw nodes and internal edges
+            nx.draw_networkx(
+                G_authors, node_size=600, alpha=0.5, linewidths=30,
+                pos=karate_pos,
+                node_color=node_color,
+                edgelist=internal,
+                edge_color=internal_color)
 
-        from pyvis.network import Network
-        net = Network()
-        net.from_nx(G_authors)
-        net.save_graph('figs/grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.html')
+            # fim
 
-        plt.savefig('figs/grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.png', dpi=300, bbox_inches='tight')
-        plt.close()
+            from pyvis.network import Network
+            net = Network()
+            net.from_nx(G_authors)
+            net.save_graph(
+                'figs/grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.html')
 
-        s = '''
-A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
-de autores dos artigos em __tipo____tipo3__.
-Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{grafo com movimento} 
-para uma melhor visualização.
-\\begin{figure}[h]
-\centering
-\includegraphics[width=0.8\\textwidth]{figs/grafo__tipo____tipo2__Ano.png}
-\caption{Relacionamentos de autores dos artigos em __tipo__ __tipo3__ - ver
-\href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{grafo com movimento}}
-\label{figs:grafo__tipo____tipo2__Ano}
-\end{figure}
-'''
-        ss0 += s.replace('__tipo__',
-                         lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
+            plt.savefig(
+                'figs/grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.png', dpi=300, bbox_inches='tight')
+            plt.close()
+
+            s = '''
+    A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
+    de autores dos artigos em __tipo____tipo3__.
+    Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{grafo com movimento} 
+    para uma melhor visualização.
+    \\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\\textwidth]{figs/grafo__tipo____tipo2__Ano.png}
+    \caption{Relacionamentos de autores dos artigos em __tipo__ __tipo3__ - ver
+    \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{grafo com movimento}}
+    \label{figs:grafo__tipo____tipo2__Ano}
+    \end{figure}
+    '''
+            ss0 += s.replace('__tipo__',
+                             lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
+
+        if len(ss0) < 100:
+            ss0 = 'sem dados'
 
         with open('./texLattes/' + lattes.renomeia[tipo] + tamanho + '.tex', 'w') as f:
             f.writelines(ss0)
@@ -918,14 +934,14 @@ para uma melhor visualização.
                                     if titulo:
                                         ss += titulo + '. '
                                     ss += v1[evento[2]
-                                          ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
+                                             ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
                                     ano = v1[evento[1]]["@ANO"]
                                     t = v1[evento[2]]["@CIDADE-DO-EVENTO"]
                                     if t:
                                         ss += t + '. '
                                     ss += ano + ' ('
                                     ss += v1[evento[1]]["@NATUREZA"].lower() + \
-                                          '). '
+                                        '). '
                                     t = v1[evento[1]]['@TIPO-PARTICIPACAO']
                                     if t:
                                         ss += t + '. '
@@ -968,7 +984,8 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
             plt.savefig('figs/eventos' + tipo + '.png')
             plt.close()
 
-        if len(ss0) < 50: ss0 = ''
+        if len(ss0) < 100:
+            ss0 = 'sem dados'
 
         with open('./texLattes/Eventos' + tipo + '.tex', 'w') as f:
             f.writelines(ss0)
@@ -1001,14 +1018,14 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
                             if titulo:
                                 ss += titulo + '. '
                             ss += v1[evento[2]
-                                  ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
+                                     ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
                             ano = v1[evento[1]]["@ANO"]
                             t = v1[evento[2]]["@CIDADE-DA-APRESENTACAO"]
                             if t:
                                 ss += t + '. '
                             ss += ano + ' ('
                             ss += v1[evento[1]]["@NATUREZA"].lower() + \
-                                  '). '
+                                '). '
                             ss += lattes.pegaIDbib(titulo)
                             ssLista.append([int(ano), ss])
 

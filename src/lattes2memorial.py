@@ -64,7 +64,7 @@ def geraLattes2Memorial(id):
     lattes.lattes2bib()  # converte xml para bib
 
     lattes.pegaDadosGerais(id)
-    print(lattes.jsonConfigura["NOME-COMPLETO"])
+    print("lattes2memorial:", lattes.jsonConfigura["NOME-COMPLETO"], "\n")
 
     lattes.atualizaDadosExtras()
 
