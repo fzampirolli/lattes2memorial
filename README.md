@@ -6,7 +6,7 @@ Converte zip exportado do lattes para latex:
 
 Serviço em construção, portanto melhorias são necessárias nesse processo!
 
-Porém, podem testar no servidores abaixo sem ter que instalar nada:
+Porém, podem testar nos servidores abaixo sem ter que instalar nada:
 * http://vision.ufabc.edu.br/lattes2memorial/
 * http://mctest.ufabc.edu.br:8000/lattes2memorial/
 
