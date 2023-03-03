@@ -13,6 +13,7 @@ Porém, podem testar nos servidores abaixo sem ter que instalar nada:
 Créditos: 
 * https://pt.overleaf.com/latex/templates/template-ufabc-dissertacao/zmwgdkcsrxjb (adaptado)
 * https://arademaker.github.io/blog/2012/02/15/lattes-to-bibtex.html
+* https://ppgcc.github.io/discentesPPGCC/pt-BR/qualis/
 
 # Instalar python, pip e git (se ainda não tiver instalado)
 
