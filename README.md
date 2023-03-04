@@ -10,7 +10,7 @@ Porém, podem testar localmente ou nos servidores abaixo sem ter que instalar na
 * http://vision.ufabc.edu.br/lattes2memorial/
 * http://mctest.ufabc.edu.br:8000/lattes2memorial/
 
-O conteúdo deste GitHub é exatamente o que está rodando desser servidores.
+O conteúdo deste GitHub é exatamente o que está rodando nesses servidores.
 
 Créditos: 
 * https://pt.overleaf.com/latex/templates/template-ufabc-dissertacao/zmwgdkcsrxjb (adaptado)
@@ -62,12 +62,12 @@ source lattesEnv/bin/activate
 * Exportar (final da aba vertical à esquerda)
 * Escolher xml e Continuar
 
-# 👇️ Mover "CV_*.zip" para a pasta `lattes2memorial/src`
+# 👇️ Mover "CV_*.zip" para a pasta correta
 ```
 mv CV_*.zip lattes2memorial/src
 ```
 
-# 👇️ Instalar e rodar lattes2memorial na pasta src
+# 👇️ Instalar bibliotecas e rodar na pasta src
 ```
 python lattes2memorial.py instala
 python lattes2memorial.py
