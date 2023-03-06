@@ -111,7 +111,7 @@ if (isset($_FILES['image'])) {
   <hr>
   <div>
     <ul>
-      <li> Submeter examente o zip gerado pela plataforma lattes no formato "CV_*.zip" (ver <a href="https://github.com/fzampirolli/lattes2memorial" target="_blank">GitHub</a>); </li>
+      <li> Submeter examente o zip gerado pela plataforma lattes no formato "CV_xxxxxxxxxxxxx.zip" (ver <a href="https://github.com/fzampirolli/lattes2memorial" target="_blank">GitHub</a>); </li>
       <li> Após clicar no botão Enviar abaixo, o servidor cria todos os arquivos necessários para gerar o PDF pelo latex; </li>
       <li> Estes arquivos estarão dentro de uma pasta que será compactada e enviada de volta ao seu computador; </li>
       <li> Todos os arquivos do servidor referente ao seu lattes serão removidos após esse envio; </li>

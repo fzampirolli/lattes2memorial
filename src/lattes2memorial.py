@@ -38,6 +38,77 @@ else:
             IDs.append(f[3:-4])
 
 
+################################################################
+#  IMPLEMENTAÇÃO RECURSIVA - GENÉRICO!!! - EM CONSTRUÇAO
+'''
+recursoes = 0
+
+
+def dist_raiz(no):
+    if isinstance(no, dict):
+        return 1 + (max(map(dist_raiz, no.values())) if no else 0)
+    return 0
+
+
+def dist_folha(nodo):
+    def folha_aux(valor):
+        if isinstance(valor, list):
+            return max(dist_folha(v) for v in valor)
+        else:
+            return dist_folha(valor)
+
+    if isinstance(nodo, dict):
+        return 1 + max(folha_aux(v) for v in nodo.values())
+    else:
+        return 0
+
+
+def formataSaida(v):
+    ano = 0
+    s = '\n\n\\item '
+    if isinstance(v, dict):
+        for k1, v1 in v.items():
+            if isinstance(v1, str) and len(v1):
+                s += v1 + '. '
+                if '@ANO' in k1:
+                    ano = int(v1)
+    return [ano, s]
+
+
+def pegaFilhos(d):
+    global recursoes
+    recursoes += 1
+    ss0 = '\\begin{enumerate}'
+    ssLista = []
+    file = '_Geral_'
+    if isinstance(d, list):
+        for f in d:
+            pegaFilhos(f)
+    elif isinstance(d, dict):
+        for k, v in d.items():
+            if dist_folha(v):
+                print()
+                print(dist_folha(v), k)
+                file = '_Geral_'+k
+                s = formataSaida(v)
+                if len(s[1]) > 12:
+                    ssLista.append(s)
+                pegaFilhos(v)
+
+    if isinstance(ssLista, list) and len(ssLista) and len(ssLista[0][1]) > 12:
+        print(file)
+        print(ssLista)
+        vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
+        ss0 += ''.join([v[1] for v in vSort])
+        ss0 += '\n\n\\end{enumerate}\n'
+        with open('./texLattes/'+file+'.tex', 'w') as f:
+            f.writelines(ss0)
+        f.close()
+'''
+#  IMPLEMENTAÇÃO RECURSIVA - GENÉRICO!!!
+################################################################
+
+
 def geraLattes2Memorial(id):
     file = id+'.tex'
     if len(sys.argv) == 2:  # and lattes.lerConfigJson(id+'config.json'):
@@ -78,6 +149,15 @@ def geraLattes2Memorial(id):
     \include{capitulos/05admin}
     \include{capitulos/06conclusao}
     '''
+    d = lattes.jsonLattes["CURRICULO-VITAE"]
+
+    # pegaFilhos(d) # RECURSIVO
+    # print(recursoes)
+
+    # Bancas
+    for tipo in ["Doutorado", "Mestrado", "Qualificacao", "Especializacao", "Graduacao"]:
+        lattes.pegaDadosBancas(tipo)
+    # return ''
 
     # Orientações
     for tipo in lattes.natureza:
@@ -100,6 +180,21 @@ def geraLattes2Memorial(id):
 
     # Publicações em eventos (resumo)
     lattes.pegaDadosArtigos("TRABALHO", "RESUMO")
+
+    # Livros e Capítulos Publicados
+    for tipo in ["LIVROS", "CAPITULOS"]:
+        lattes.pegaPublicacoes(tipo)
+
+    # Produções técnicas
+    for tipo in ['SOFTWARE']:
+        lattes.pegaProducoesTecnicas(tipo)
+
+    # Bancas
+    for tipo in ["Doutorado", "Mestrado", "Qualificacao", "Especializacao", "Graduacao"]:
+        lattes.pegaDadosBancas(tipo)
+
+    # Prêmios
+    lattes.pegaPremios()
 
     tex_fim = open("./extras/latexFim.tex", "r", encoding='UTF-8').read()
     text += tex_fim.replace('__bib__', lattes.NUMERO_IDENTIFICADOR)

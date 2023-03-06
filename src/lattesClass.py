@@ -32,6 +32,9 @@ from PyPDF2 import PdfReader
 
 class lattes(object):
     #### INICIALIZATION ####
+    desenhaGraficos = 4  # desenha se #itens > 4
+    figsize = [8, 5]
+    figsizeBig = [20, 20]
     dfRevistasUpper = None
     dfEventosUpper = None
     jsonConfigura = None
@@ -46,6 +49,9 @@ class lattes(object):
     renomeia["MONOGRAFIA_DE_CONCLUSAO_DE_CURSO_APERFEICOAMENTO_E_ESPECIALIZACAO"] = 'Aperfeiçoamento/Especialização'
     renomeia["Doutorado"] = "Doutorado"
     renomeia["Mestrado"] = "Mestrado"
+    renomeia["LIVROS"] = "Livros"
+    renomeia["CAPITULOS"] = "Capítulos"
+    renomeia["SOFTWARE"] = "Software"
     renomeia["Dissertação de mestrado"] = "Dissertação de mestrado"
     renomeia["ORIENTACAO-DE-OUTRA-NATUREZA"] = "Orientação de outra natureza"
     renomeia["ORIENTADOR_PRINCIPAL"] = "Orientador principal"
@@ -71,7 +77,7 @@ class lattes(object):
         title = title.replace('\n', '').replace(' ', '')
         for k, v in lattes.jsonBibId.items():
             if v == title:
-                return '\cite{' + k + '}'
+                return '\cite{' + k + '}. '
         return ''
 
     def lattes2bib():
@@ -111,18 +117,18 @@ class lattes(object):
         lattes.jsonConfigura = json.load(f)
         return 1
 
-    def rodaLatex(file='lattesMemorial.tex'):
+    def rodaLatex(file):
         def _rodaLatex(file):
             cmd = ['pdflatex', '-interaction', 'nonstopmode', file]
             proc = subprocess.Popen(cmd)
             proc.communicate()
 
         _rodaLatex(file)
+
         cmd = ['bibtex', file[:-4]]
         proc = subprocess.Popen(cmd)
         proc.communicate()
 
-        _rodaLatex(file)
         _rodaLatex(file)
 
     def limpaDadosGerados(id):
@@ -130,11 +136,15 @@ class lattes(object):
             print("rm " + id + "*")
             os.system("rm " + id + "*")
         os.system("rm texLattes/*")
-        os.system("rm figs/qualis*")
-        os.system("rm figs/orient*")
-        os.system("rm figs/evento*")
-        os.system("rm figs/aprese*")
-        os.system("rm figs/grafo*")
+        os.system("rm figs/Qualis*")
+        os.system("rm figs/Orient*")
+        os.system("rm figs/Evento*")
+        os.system("rm figs/Aprese*")
+        os.system("rm figs/Grafo*")
+        os.system("rm figs/Producoes*")
+        os.system("rm figs/Publicacoes*")
+        os.system("rm figs/Bancas*")
+        os.system("rm figs/Premios*")
         os.system("rm data/novoQualis2017-2020.csv")
         os.system("rm extras/dados.tex")
         os.system("rm **/*.aux")
@@ -412,14 +422,14 @@ class lattes(object):
             ss0 += '\n\n\\end{enumerate}\n'
 
             v0 = sorted([v[0] for v in vSort], reverse=True)
-            if len(v0) > 2:  # desenha gráficos
+            if len(v0) > lattes.desenhaGraficos:  # desenha gráficos
 
                 s = '''
-A Figura \\ref{figs:orientacoes__tipo____tipo2__} mostra o número de orientações por ano de __tipo3__, 
+A Figura \\ref{figs:orientacoes__tipo____tipo2__} mostra o número de orientações por ano de __tipo3__,
 considerando a data de início.
-\\begin{figure}[h]
+\\begin{figure}[!h]
 \centering
-\includegraphics[width=0.8\\textwidth]{figs/orientacoes__tipo____tipo2__.png}
+\includegraphics[width=0.8\\textwidth]{figs/Orientacoes__tipo____tipo2__.png}
 \caption{Orientações por Ano (__tipo3__)}
 \label{figs:orientacoes__tipo____tipo2__}
 \end{figure}
@@ -436,7 +446,7 @@ considerando a data de início.
                 frequencia = [orientacoesAno[i] for i in x]
                 x = [str(i) for i in x]
 
-                plt.figure(figsize=[8, 5])
+                plt.figure(figsize=lattes.figsize)
                 fig, ax = plt.subplots()
                 ax.tick_params(axis='x', labelrotation=90)
                 if tipo2:
@@ -450,8 +460,7 @@ considerando a data de início.
 
                 pps = ax.bar(x, frequencia, label='population')
 
-                plt.savefig('figs/orientacoes' + tipo +
-                            ts[:4] + '.png', dpi=300, bbox_inches='tight')
+                plt.savefig('figs/Orientacoes' + tipo + ts[:4] + '.png')
                 plt.close()
 
             if len(ss0) < 100:
@@ -596,14 +605,14 @@ considerando a data de início.
                     for a in p['AUTORES']:
                         if a['@NOME-PARA-CITACAO']:
                             a0 = a['@NOME-PARA-CITACAO'].upper()
-                            ss0 += a0 + "; "
+                            # ss0 += a0 + "; "
                             autores.append(a0)
                 elif p['AUTORES']['@NOME-PARA-CITACAO']:
-                    a = p['AUTORES']['@NOME-PARA-CITACAO'].upper()
-                    ss0 += a + "; "
+                    a0 = p['AUTORES']['@NOME-PARA-CITACAO'].upper()
+                    # ss0 += a0 + "; "
                     autores.append(a0)
 
-                ss0 = ss0[: -2] + '. '
+                # ss0 = ss0[: -2] + '. '
 
                 for c, d in p['DADOS-BASICOS-DO-' + tipo].items():
                     if d and c[1:] == 'TITULO-DO-' + tipo:
@@ -614,7 +623,7 @@ considerando a data de início.
 
                 for c, d in p['DETALHAMENTO-DO-' + tipo].items():
                     if d and c[1:] == 'TITULO-DO-PERIODICO-OU-REVISTA' or c[1:] == "NOME-DO-EVENTO":
-                        ss0 += d.upper()
+                        ss0 += '\\textit{' + d + '}'  # .upper()
                         ss0 += '. ' + ano + '. ' + cite
                         if tipo == 'TRABALHO':
                             qualis = lattes.getQualisEvento(d)
@@ -644,7 +653,7 @@ considerando a data de início.
 
             # DESENHA FIGURA ARTIGOS POR QUALIS
 
-            plt.figure(figsize=[8, 5])
+            plt.figure(figsize=lattes.figsize)
             x = list(sorted(qualisAno.keys()))
 
             frequencia = [len(qualisAno[q]) for q in x]
@@ -671,18 +680,17 @@ considerando a data de início.
                 c += 1
 
             plt.savefig(
-                'figs/qualis' + lattes.renomeia[tipo] + '.png', dpi=300, bbox_inches='tight')
+                'figs/Qualis' + lattes.renomeia[tipo] + '.png')
             plt.close()
 
             s = '''
 A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __tipo__.
-\\begin{figure}[h]
+\\begin{figure}[!h]
 \centering
-\includegraphics[width=0.8\\textwidth]{figs/qualis__tipo__.png}
+\includegraphics[width=0.8\\textwidth]{figs/Qualis__tipo__.png}
 \caption{Artigos por Qualis em __tipo__}
 \label{figs:qualis__tipo__}
-\end{figure}
-    '''
+\end{figure}'''
             ss0 += s.replace('__tipo__', lattes.renomeia[tipo])
 
         # DESENHA FIGURA QUALIS POR ANO
@@ -712,7 +720,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             qualisAno2 = {str(i): qualisAno2[str(i)] for i in myKeys}
             anos = list(qualisAno3.keys())
 
-            plt.figure(figsize=[20, 10])
+            plt.figure(figsize=lattes.figsize)
             # x = anos  # np.arange(len(anos))  # the label locations
 
             fig, ax = plt.subplots()
@@ -756,22 +764,21 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                             ha='center', va='bottom')
                 c += 1
 
-            plt.savefig('figs/qualis' +
-                        lattes.renomeia[tipo] + tamanho + 'Ano.png', dpi=300, bbox_inches='tight')
+            plt.savefig('figs/Qualis' +
+                        lattes.renomeia[tipo] + tamanho + 'Ano.png')
             plt.close()
 
             s = '''
-    A Figura \\ref{figs:qualis__tipo____tipo2__Ano} mostra o número de artigos __tipo3__ 
-    com Qualis, se existirem por ano em __tipo__.
-    Considerar no eixo vertical o somatório de artigos, sendo A1=10, A2=9, $\cdots$, C=2, SQ=1.
-    Onde SQ é Sem Qualis e nesta figura tem peso de apenas uma unidade na vertical.
-    \\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\\textwidth]{figs/qualis__tipo____tipo2__Ano.png}
-    \caption{Artigos por Ano em __tipo__ __tipo3__}
-    \label{figs:qualis__tipo____tipo2__Ano}
-    \end{figure}
-    '''
+A Figura \\ref{figs:qualis__tipo____tipo2__Ano} mostra o número de artigos __tipo3__
+com Qualis, se existirem por ano em __tipo__.
+Considerar no eixo vertical o somatório de artigos, sendo A1=10, A2=9, $\cdots$, C=2, SQ=1.
+Onde SQ é Sem Qualis e nesta figura tem peso de apenas uma unidade na vertical.
+\\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\\textwidth]{figs/Qualis__tipo____tipo2__Ano.png}
+\caption{Artigos por Ano em __tipo__ __tipo3__}
+\label{figs:qualis__tipo____tipo2__Ano}
+\end{figure}  '''
             ss0 += s.replace('__tipo__',
                              lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
 
@@ -796,7 +803,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                         dic[r[1]].append(r[0])
                     else:
                         dic[r[1]] = [r[0]]
-            plt.figure(figsize=[10, 10])
+            plt.figure(figsize=lattes.figsize)
             # print(dic)
             G_authors = nx.Graph(dic)
             # nx.draw(g, with_labels=True, node_size=600, node_color="skyblue", node_shape="s", alpha=0.8, linewidths=40,  font_weight='bold')
@@ -807,12 +814,12 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             # from matplotlib import pyplot as plt
 
             plt.rcParams.update(plt.rcParamsDefault)
-            plt.rcParams.update({'figure.figsize': (15, 10)})
+            plt.rcParams.update({'figure.figsize': (list(lattes.figsize))})
             # get reproducible results
             import random
             from numpy import random as nprand
-            random.seed(131)
-            nprand.seed(131)
+            random.seed(137)
+            nprand.seed(137)
             communities = sorted(nxcom.greedy_modularity_communities(
                 G_authors), key=len, reverse=True)
             print(
@@ -860,7 +867,10 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             internal_color = ['black' for e in internal]
 
             karate_pos = nx.spring_layout(G_authors)
-            plt.rcParams.update({'figure.figsize': (15, 10)})
+            li = [int(e * 0.6) for e in lattes.figsizeBig]
+            li2 = [int(e * 1.3) for e in lattes.figsizeBig]
+            plt.figure(figsize=li)
+            plt.rcParams.update({'figure.figsize': li2})
             # Draw external edges
             nx.draw_networkx(
                 G_authors,
@@ -882,25 +892,25 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             net = Network()
             net.from_nx(G_authors)
             net.save_graph(
-                'figs/grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.html')
+                'figs/Grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.html')
 
             plt.savefig(
-                'figs/grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.png', dpi=300, bbox_inches='tight')
-            plt.close()
+                'figs/Grafo' + lattes.renomeia[tipo] + tamanho + 'Ano.png')
+            plt.close('all')
+            plt.rcdefaults()
 
             s = '''
-    A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
-    de autores dos artigos em __tipo____tipo3__.
-    Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{grafo com movimento} 
-    para uma melhor visualização.
-    \\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\\textwidth]{figs/grafo__tipo____tipo2__Ano.png}
-    \caption{Relacionamentos de autores dos artigos em __tipo__ __tipo3__ - ver
-    \href{http://vision.ufabc.edu.br/pub/classeE/figs/grafo__tipo____tipo2__Ano.html}{grafo com movimento}}
-    \label{figs:grafo__tipo____tipo2__Ano}
-    \end{figure}
-    '''
+A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
+de autores dos artigos em __tipo____tipo3__.
+Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/Grafo__tipo____tipo2__Ano.html}{grafo com movimento}
+para uma melhor visualização.
+\\begin{figure}[!h]
+\centering
+\includegraphics[width=1.0\\textwidth]{figs/Grafo__tipo____tipo2__Ano.png}\\vspace{-1cm}
+\caption{Relacionamentos de autores dos artigos em __tipo__ __tipo3__ - ver
+\href{http://vision.ufabc.edu.br/pub/classeE/figs/Grafo__tipo____tipo2__Ano.html}{grafo com movimento}}
+\label{figs:grafo__tipo____tipo2__Ano}
+\end{figure} '''
             ss0 += s.replace('__tipo__',
                              lattes.renomeia[tipo]).replace('__tipo2__', tamanho).replace('__tipo3__', tamanhoStr)
 
@@ -956,13 +966,13 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
         ss0 += '\n\n\\end{enumerate}\n'
 
         v0 = sorted([v[0] for v in vSort], reverse=True)
-        if len(v0) > 2:  # desenha gráficos
+        if len(v0) > lattes.desenhaGraficos:  # desenha gráficos
 
             s = '''
 A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ por ano.
-\\begin{figure}[h]
+\\begin{figure}[!h]
 \centering
-\includegraphics[width=0.8\\textwidth]{figs/eventos__tipo__.png}
+\includegraphics[width=0.8\\textwidth]{figs/Eventos__tipo__.png}
 \caption{Eventos por Ano (__tipo__)}
 \label{figs:eventos__tipo__}
 \end{figure}
@@ -974,7 +984,7 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
             frequencia = [eventosAno[i] for i in x]
             x = [str(i) for i in x]
 
-            plt.figure(figsize=[8, 5])
+            plt.figure(figsize=lattes.figsize)
             fig, ax = plt.subplots()
             ax.tick_params(axis='x', labelrotation=90)
             ax.set_title('Eventos por Ano (' + tipo + ')')
@@ -984,8 +994,7 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
 
             pps = ax.bar(x, frequencia, label='population')
 
-            plt.savefig('figs/eventos' + tipo + '.png',
-                        dpi=300, bbox_inches='tight')
+            plt.savefig('figs/Eventos' + tipo + '.png')
             plt.close()
 
         if len(ss0) < 100:
@@ -1013,10 +1022,6 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
                 for k0, v0 in d[k].items():
                     if k0 == evento[0] and isinstance(v0, list):
                         for v1 in v0:
-                            # print()
-                            # print(k0)
-                            # print(v1)
-
                             ss = '\n\n\\item '
                             titulo = v1[evento[1]]["@TITULO"]
                             if titulo:
@@ -1038,13 +1043,13 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
         ss0 += '\n\n\\end{enumerate}\n'
 
         v0 = sorted([v[0] for v in vSort], reverse=True)
-        if len(v0) > 2:  # desenha gráficos
+        if len(v0) > lattes.desenhaGraficos:  # desenha gráficos
 
             s = '''
 A Figura \\ref{figs:apresentacoes} mostra o número de apresentações por ano.
-\\begin{figure}[h]
+\\begin{figure}[!h]
 \centering
-\includegraphics[width=0.8\\textwidth]{figs/apresentacoes.png}
+\includegraphics[width=0.8\\textwidth]{figs/Apresentacoes.png}
 \caption{Apresentações por Ano}
 \label{figs:apresentacoes}
 \end{figure}
@@ -1056,7 +1061,7 @@ A Figura \\ref{figs:apresentacoes} mostra o número de apresentações por ano.
             frequencia = [apresentacoesAno[i] for i in x]
             x = [str(i) for i in x]
 
-            plt.figure(figsize=[8, 5])
+            plt.figure(figsize=lattes.figsize)
             fig, ax = plt.subplots()
             ax.tick_params(axis='x', labelrotation=90)
             ax.set_title('Apresentações por Ano')
@@ -1066,9 +1071,388 @@ A Figura \\ref{figs:apresentacoes} mostra o número de apresentações por ano.
 
             pps = ax.bar(x, frequencia, label='population')
 
-            plt.savefig('figs/apresentacoes.png', dpi=300, bbox_inches='tight')
+            plt.savefig('figs/Apresentacoes.png')
             plt.close()
 
         with open('./texLattes/Apresentacoes.tex', 'w') as f:
+            f.writelines(ss0)
+        f.close()
+
+    def pegaPublicacoes(tipo):
+        if tipo == 'LIVROS':
+            publicacoes = [tipo+"-PUBLICADO-OU-ORGANIZADO",
+                           "DADOS-BASICOS-DO-"+tipo[:-1],
+                           "DETALHAMENTO-DO-" + tipo[:-1]]
+        else:
+            publicacoes = [tipo+"-PUBLICADO",
+                           "DADOS-BASICOS-DO-"+tipo[:-1],
+                           "DETALHAMENTO-DO-" + tipo[:-1]]
+        dicPub = {}
+        dicPub['LIVROS'] = "LIVROS-PUBLICADOS-OU-ORGANIZADOS"
+        dicPub['CAPITULOS'] = "CAPITULOS-DE-LIVROS-PUBLICADOS"
+
+        d = lattes.jsonLattes["CURRICULO-VITAE"]["PRODUCAO-BIBLIOGRAFICA"]
+
+        if not d:
+            with open('./texLattes/Publicacoes'+tipo+'.tex', 'w') as f:
+                f.writelines('sem dados em publicacoes:' + tipo)
+            f.close()
+            return ''
+        ssLista = []
+        ss0 = '\\begin{enumerate}'
+        for k, v in d.items():
+            if k == "LIVROS-E-CAPITULOS":
+                for k0, v0 in d[k].items():
+                    if k0 == dicPub[tipo] and isinstance(v0, dict):
+                        for k1, v1 in v0.items():
+                            if isinstance(v1, list):
+                                for v2 in v1:
+                                    ss = '\n\n\\item '
+                                    if tipo == 'LIVROS':
+                                        titulo = v2[publicacoes[1]
+                                                    ]["@TITULO-DO-LIVRO"]
+                                    else:
+                                        titulo = v2[publicacoes[1]
+                                                    ]["@TITULO-DO-CAPITULO-DO-LIVRO"]
+                                    if titulo:
+                                        ss += titulo + '. '
+
+                                    ano = v2[publicacoes[1]]["@ANO"]
+
+                                    ss += ano + '. '
+                                    ss += lattes.pegaIDbib(titulo)
+                                    ssLista.append([int(ano), ss])
+
+        vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
+        ss0 += ''.join([v[1] for v in vSort])
+        ss0 += '\n\n\\end{enumerate}\n'
+
+        v0 = sorted([v[0] for v in vSort], reverse=True)
+        if len(v0) > lattes.desenhaGraficos:  # desenha gráficos
+
+            s = '''
+A Figura \\ref{figs:publicacoes__tipo__} mostra as publicações (__tipo1__) por ano.
+\\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\\textwidth]{figs/Publicacoes__tipo__.png}
+\caption{Publicações (__tipo1__)}
+\label{figs:publicacoes__tipo__}
+\end{figure}
+'''
+            ss0 += s.replace('__tipo__', tipo
+                             ).replace('__tipo1__', lattes.renomeia[tipo])
+
+            apresentacoesAno = {i: v0.count(i) for i in set(v0)}
+            x = sorted(list(apresentacoesAno.keys()), reverse=True)
+            frequencia = [apresentacoesAno[i] for i in x]
+            x = [str(i) for i in x]
+
+            plt.figure(figsize=lattes.figsize)
+            fig, ax = plt.subplots()
+            ax.tick_params(axis='x', labelrotation=90)
+            ax.set_title(f'Publicações ({lattes.renomeia[tipo]})')
+            ax.set_ylabel("Quantidade")
+            # ax.set_xlabel('Qualis')
+            ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
+
+            pps = ax.bar(x, frequencia, label='population')
+
+            plt.savefig('figs/Publicacoes'+tipo+'.png')
+            plt.close()
+
+        with open('./texLattes/Publicacoes'+tipo+'.tex', 'w') as f:
+            f.writelines(ss0)
+        f.close()
+
+    def pegaProducoesTecnicas(tipo):
+
+        # "PRODUCAO-TECNICA": {
+        #     "SOFTWARE": [
+        #       {
+        #         "@SEQUENCIA-PRODUCAO": "15",
+        #       "DADOS-BASICOS-DO-SOFTWARE":
+        # DETALHAMENTO-DO-SOFTWARE
+
+        if tipo == 'SOFTWARE':
+            producoes = [tipo+"-PUBLICADO-OU-ORGANIZADO",
+                         "DADOS-BASICOS-DO-"+tipo,
+                         "DETALHAMENTO-DO-" + tipo,
+                         "AUTORES"]
+
+        dicPub = {}
+        dicPub['SOFTWARE'] = "SOFTWARE"
+        dicPub['TRABALHO-TECNICO'] = "TRABALHO-TECNICO"
+        dicPub['DEMAIS-TIPOS-DE-PRODUCAO-TECNICA'] = "DEMAIS-TIPOS-DE-PRODUCAO-TECNICA"
+
+        d = lattes.jsonLattes["CURRICULO-VITAE"]["PRODUCAO-TECNICA"]
+
+        if not d:
+            with open('./texLattes/ProducoesTecnicas'+tipo+'.tex', 'w') as f:
+                f.writelines('sem dados em ProducoesTecnicas:' + tipo)
+            f.close()
+            return ''
+        ssLista = []
+        ss0 = '\\begin{enumerate}'
+        for k, v in d.items():
+            # print(k)
+            if k == dicPub[tipo] and isinstance(v, list):
+                for v2 in d[k]:
+                    if "REGISTRO-OU-PATENTE" in v2[producoes[2]].keys():
+                        ss = '\n\n\\item '
+                        if tipo == 'SOFTWARE':
+                            titulo = v2[producoes[1]
+                                        ]["@TITULO-DO-SOFTWARE"]
+
+                        if titulo:
+                            ss += titulo + '. '
+
+                        registro = v2[producoes[2]
+                                      ]["REGISTRO-OU-PATENTE"]["@CODIGO-DO-REGISTRO-OU-PATENTE"]
+                        if registro:
+                            ss += "Registro: " + registro + '. '
+
+                        instituicao = v2[producoes[2]
+                                         ]["REGISTRO-OU-PATENTE"]["@INSTITUICAO-DEPOSITO-REGISTRO"]
+                        if instituicao:
+                            ss += instituicao + '. '
+
+                        ano = v2[producoes[1]]["@ANO"]
+
+                        ss += ano + '. '
+                        ss += lattes.pegaIDbib(titulo)
+
+                        autores = []
+
+                        if isinstance(v2, list):
+                            for a in v2[producoes[3]]:
+                                if a['@NOME-PARA-CITACAO']:
+                                    a0 = a['@NOME-PARA-CITACAO'].upper()
+                                    ss += a0 + "; "
+                                    autores.append(a0)
+                        elif 'AUTORES' in v2.keys() and v2['AUTORES']:
+                            for a in v2['AUTORES']:
+                                a0 = a['@NOME-PARA-CITACAO'].upper()
+                                ss += a0 + "; "
+                                autores.append(a0)
+
+                        ss = ss[:-2] + '. '
+                        ssLista.append([int(ano), ss])
+
+        vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
+        ss0 += ''.join([v[1] for v in vSort])
+        ss0 += '\n\n\\end{enumerate}\n'
+
+        v0 = sorted([v[0] for v in vSort], reverse=True)
+        if len(v0) > lattes.desenhaGraficos:  # desenha gráficos
+
+            s = '''
+A Figura \\ref{figs:ProducoesTecnicas__tipo__} mostra as produções técnicas (__tipo1__) por ano.
+\\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\\textwidth]{figs/ProducoesTecnicas__tipo__.png}
+\caption{Produções Técnicas (__tipo1__)}
+\label{figs:ProducoesTecnicas__tipo__}
+\end{figure}
+'''
+            ss0 += s.replace('__tipo__', tipo
+                             ).replace('__tipo1__', lattes.renomeia[tipo])
+
+            apresentacoesAno = {i: v0.count(i) for i in set(v0)}
+            x = sorted(list(apresentacoesAno.keys()), reverse=True)
+            frequencia = [apresentacoesAno[i] for i in x]
+            x = [str(i) for i in x]
+
+            plt.figure(figsize=lattes.figsize)
+            fig, ax = plt.subplots()
+            ax.tick_params(axis='x', labelrotation=90)
+            ax.set_title(f'Produções Técnicas ({lattes.renomeia[tipo]})')
+            ax.set_ylabel("Quantidade")
+            # ax.set_xlabel('Qualis')
+            ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
+
+            pps = ax.bar(x, frequencia, label='population')
+
+            plt.savefig('figs/ProducoesTecnicas'+tipo+'.png')
+            plt.close()
+
+        with open('./texLattes/ProducoesTecnicas'+tipo+'.tex', 'w') as f:
+            f.writelines(ss0)
+        f.close()
+
+    def pegaPremios():
+        # DADOS-GERAIS
+        #   "PREMIOS-TITULOS": {
+        #     "PREMIO-TITULO": [
+        #       {
+        #         "@NOME-DO-PREMIO-OU-TITULO": "Primeiro lugar no Concurso de Software do IME",
+        #         "@NOME-DA-ENTIDADE-PROMOTORA": "USP",
+        #         "@ANO-DA-PREMIACAO": "1996",
+
+        if not "PREMIOS-TITULOS" in lattes.jsonLattes["CURRICULO-VITAE"]["DADOS-GERAIS"].keys() or not lattes.jsonLattes["CURRICULO-VITAE"]["DADOS-GERAIS"]["PREMIOS-TITULOS"]:
+            with open('./texLattes/Premios.tex', 'w') as f:
+                f.writelines('sem dados em Premios')
+            f.close()
+            return ''
+
+        d = lattes.jsonLattes["CURRICULO-VITAE"]["DADOS-GERAIS"]["PREMIOS-TITULOS"]
+
+        ssLista = []
+        ss0 = '\\begin{enumerate}'
+        for k, v in d.items():
+            if isinstance(v, list):
+                for v2 in v:
+                    ss = '\n\n\\item '
+
+                    titulo = v2["@NOME-DO-PREMIO-OU-TITULO"]
+                    if titulo:
+                        ss += titulo.replace('&quot;', '') + '. '
+
+                    ano = v2['@ANO-DA-PREMIACAO']
+                    ss += ano + '. '
+
+                    entidade = v2['@NOME-DA-ENTIDADE-PROMOTORA']
+                    ss += entidade + '. '
+
+                    ssLista.append([int(ano), ss])
+
+        vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
+        ss0 += ''.join([v[1] for v in vSort])
+        ss0 += '\n\n\\end{enumerate}\n'
+
+        v0 = sorted([v[0] for v in vSort], reverse=True)
+        if len(v0) > lattes.desenhaGraficos:  # desenha gráficos
+
+            s = '''
+A Figura \\ref{figs:Premios} mostra o número de prêmios por ano.
+\\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\\textwidth]{figs/Premios.png}
+\caption{Prêmios por Ano}
+\label{figs:Premios}
+\end{figure}
+'''
+            ss0 += s  # .replace('__tipo__', tipo).replace('__tipo1__', lattes.renomeia[tipo])
+
+            apresentacoesAno = {i: v0.count(i) for i in set(v0)}
+            x = sorted(list(apresentacoesAno.keys()), reverse=True)
+            frequencia = [apresentacoesAno[i] for i in x]
+            x = [str(i) for i in x]
+
+            plt.figure(figsize=lattes.figsize)
+            fig, ax = plt.subplots()
+            ax.tick_params(axis='x', labelrotation=90)
+            ax.set_title(f'Prêmios por Ano')
+            ax.set_ylabel("Quantidade")
+            # ax.set_xlabel('Qualis')
+            ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
+
+            pps = ax.bar(x, frequencia, label='population')
+
+            plt.savefig('figs/Premios.png')
+            plt.close()
+
+        with open('./texLattes/Premios.tex', 'w') as f:
+            f.writelines(ss0)
+        f.close()
+
+    def pegaDadosBancas(tipo):
+        bancas = dict()
+        bancas["Doutorado"] = ["PARTICIPACAO-EM-BANCA-DE-DOUTORADO",
+                               "DADOS-BASICOS-DA-PARTICIPACAO-EM-BANCA-DE-DOUTORADO",
+                               "DETALHAMENTO-DA-PARTICIPACAO-EM-BANCA-DE-DOUTORADO"]
+        bancas["Mestrado"] = ["PARTICIPACAO-EM-BANCA-DE-MESTRADO",
+                              "DADOS-BASICOS-DA-PARTICIPACAO-EM-BANCA-DE-MESTRADO",
+                              "DETALHAMENTO-DA-PARTICIPACAO-EM-BANCA-DE-MESTRADO"]
+        bancas["Qualificacao"] = ["PARTICIPACAO-EM-BANCA-DE-EXAME-QUALIFICACAO",
+                                  "DADOS-BASICOS-DA-PARTICIPACAO-EM-BANCA-DE-EXAME-QUALIFICACAO",
+                                  "DETALHAMENTO-DA-PARTICIPACAO-EM-BANCA-DE-EXAME-QUALIFICACAO"]
+        bancas["Especializacao"] = ["PARTICIPACAO-EM-BANCA-DE-APERFEICOAMENTO-ESPECIALIZACAO",
+                                    "DADOS-BASICOS-DA-PARTICIPACAO-EM-BANCA-DE-APERFEICOAMENTO-ESPECIALIZACAO",
+                                    "DETALHAMENTO-DA-PARTICIPACAO-EM-BANCA-DE-APERFEICOAMENTO-ESPECIALIZACAO"]
+        bancas["Graduacao"] = ["PARTICIPACAO-EM-BANCA-DE-GRADUACAO",
+                               "DADOS-BASICOS-DA-PARTICIPACAO-EM-BANCA-DE-GRADUACAO",
+                               "DETALHAMENTO-DA-PARTICIPACAO-EM-BANCA-DE-GRADUACAO"]
+
+        d = lattes.jsonLattes["CURRICULO-VITAE"]["DADOS-COMPLEMENTARES"]
+
+        if not d:
+            with open('./texLattes/Bancas' + tipo + '.tex', 'w') as f:
+                f.writelines('')
+            f.close()
+            return ''
+
+        ss0 = '\\begin{enumerate}'
+        vo = bancas[tipo]
+        ssLista = []
+        for k, v in d.items():
+            if k == "PARTICIPACAO-EM-BANCA-TRABALHOS-CONCLUSAO":
+                for k0, v0 in d[k].items():
+                    # print(k0)
+                    if k0 == vo[0]:
+                        if isinstance(v0, list):
+                            for v1 in v0:
+                                ss = '\n\n\\item '
+                                ss += v1[vo[2]
+                                         ]["@NOME-DO-CANDIDATO"] + '. '
+                                ss += v1[vo[1]
+                                         ]["@TITULO"] + '. '
+                                ano = v1[vo[1]]["@ANO"]
+                                ss += ano + '. '
+                                ss += v1[vo[1]]["@NATUREZA"] + ' ('
+                                ss += v1[vo[2]]["@NOME-CURSO"] + ') - '
+                                ss += v1[vo[2]]["@NOME-INSTITUICAO"] + '. '
+                                ssLista.append([int(ano), ss])
+                        else:
+                            ss = '\n\n\\item '
+                            ss += v0[vo[2]
+                                     ]["@NOME-DO-CANDIDATO"] + '. '
+                            ss += v0[vo[1]
+                                     ]["@TITULO"] + '. '
+                            ano = v0[vo[1]]["@ANO"]
+                            ss += ano + '. '
+                            ss += v0[vo[1]]["@NATUREZA"] + ' ('
+                            ss += v0[vo[2]]["@NOME-CURSO"] + ') - '
+                            ss += v0[vo[2]]["@NOME-INSTITUICAO"] + '. '
+                            ssLista.append([int(ano), ss])
+
+        vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
+        ss0 += ''.join([v[1] for v in vSort])
+        ss0 += '\n\n\\end{enumerate}\n'
+
+        v0 = sorted([v[0] for v in vSort], reverse=True)
+        if len(v0) > lattes.desenhaGraficos:  # desenha gráficos
+
+            s = '''
+A Figura \\ref{figs:Bancas__tipo__} mostra o número participações em bancas (__tipo__) por ano.
+\\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\\textwidth]{figs/Bancas__tipo__.png}
+\caption{Bancas (__tipo__) por Ano}
+\label{figs:Bancas__tipo__}
+\end{figure}
+'''
+            ss0 += s.replace('__tipo__', tipo)
+
+            apresentacoesAno = {i: v0.count(i) for i in set(v0)}
+            x = sorted(list(apresentacoesAno.keys()), reverse=True)
+            frequencia = [apresentacoesAno[i] for i in x]
+            x = [str(i) for i in x]
+
+            plt.figure(figsize=lattes.figsize)
+            fig, ax = plt.subplots()
+            ax.tick_params(axis='x', labelrotation=90)
+            ax.set_title(f'Bancas ({tipo}) por Ano')
+            ax.set_ylabel("Quantidade")
+            # ax.set_xlabel('Qualis')
+            ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
+
+            pps = ax.bar(x, frequencia, label='population')
+
+            plt.savefig(f'figs/Bancas{tipo}.png')
+            plt.close()
+
+        if len(ss0) < 50:
+            ss0 = 'sem bancas - ' + tipo
+        with open('./texLattes/Bancas' + tipo + '.tex', 'w') as f:
             f.writelines(ss0)
         f.close()

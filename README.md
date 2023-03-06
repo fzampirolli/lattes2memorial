@@ -19,6 +19,7 @@ Créditos:
 * `networkx.algorithms.community` para agrupamento de autores
 * `pyvis.network` para grafo com movimento de agrupamento de autores
 
+Ver um trabalho relacionado, gerando html, em https://github.com/rafatieppo/lucylattes.
 # Para rodar localmente
 
 ## Instalar python, pip e git (se ainda não tiver instalado)
