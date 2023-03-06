@@ -130,6 +130,7 @@ class lattes(object):
         proc.communicate()
 
         _rodaLatex(file)
+        _rodaLatex(file)
 
     def limpaDadosGerados(id):
         if id:
