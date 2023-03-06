@@ -22,7 +22,7 @@ Créditos:
 Ver um trabalho relacionado, gerando html, em https://github.com/rafatieppo/lucylattes.
 # Para rodar localmente
 
-## Instalar python, pip e git (se ainda não tiver instalado)
+## Instalar python, pip, git, etc (se ainda não tiver instalado)
 
 ### 👇️ Debian / Ubuntu
 ```
@@ -30,6 +30,7 @@ sudo apt update
 sudo apt install python3-venv python3-pip
 python3 -m pip install --upgrade pip
 sudo apt install git-all
+sudo apt install bibtool bibutils xsltproc libxml2-utils
 ```
 
 ### 👇️ macOS
