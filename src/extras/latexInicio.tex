@@ -41,10 +41,10 @@
 % ---------------------
 
 % Colors package
-\usepackage[dvipsnames]{xcolor}
+\usepackage[dvipsnames,table,xcdraw]{xcolor}
 \usepackage {soul}
 \setul{0.3ex}{0.2ex}
- 
+
 % ---------------------
 % Pacotes ADICIONAIS
 % ---------------------
@@ -66,7 +66,7 @@
 % ---------------------
 \usepackage[brazilian,hyperpageref]{backref}	% Paginas com as citações na bibl
 %\usepackage[alf,abnt-etal-cite=4]{abntex2cite}				% Citações padrão ABNT (alfa)
-\usepackage[alf,abnt-etal-cite=4,abnt-etal-list=0,abnt-etal-text=emph]{abntex2cite}
+\usepackage[alf,abnt-etal-cite=3,abnt-etal-list=0,abnt-etal-text=emph]{abntex2cite}
 %\usepackage[num]{abntex2cite}				% Citações padrão ABNT (numericas)
 %\usepackage[style=alphabetic,sorting=nyt,sortcites=true,maxbibnames=9,autopunct=true,babel=hyphen,hyperref=true,abbreviate=false]{biblatex}
 % ---------------------
@@ -110,7 +110,7 @@
 \include{pretextual/capa}
 
 % % Folha de rosto (o * indica que haverá a ficha bibliográfica)
-% \imprimirfolhaderosto*
+\imprimirfolhaderosto*
 
 % % Imprimir Ficha Catalografica
 % \include{pretextual/catalografica}
@@ -119,13 +119,13 @@
 % \include{pretextual/assinaturas}
 
 % % Dedicatória
-% \include{pretextual/dedicatoria}
+\include{pretextual/dedicatoria}
 
 % % Agradecimentos
-% \include{pretextual/agradecimentos}
+\include{pretextual/agradecimentos}
 
 % % Epígrafe
-% \include{pretextual/epigrafe}
+\include{pretextual/epigrafe}
 
 % Resumo e Abstract
 \include{pretextual/resumos}
@@ -140,25 +140,7 @@
 \listoftables*
 \cleardoublepage
 
-% Lista de abreviaturas e siglas
-% \begin{siglas}
-%   \item[FAPESP] Fundação de Amparo à Pesquisa do Estado de São Paulo
-%   \item[FEEC] Faculdade de Engenharia Elétrica e de Computação
-%   \item[CMCC] Centro de Matemática, Computação e Cognição
-%   \item[CNPq] Conselho Nacional de Desenvolvimento Científico e Tecnológico
-%   \item[CPCE] Comissão de Promoção à Classe E
-%   \item[CPPD] Comissão Permanente de Pessoal Docente
-%   \item[IME] Instituto de Matemática e Estatística
-%   \item[INEP] Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira
-%   \item[MEC] Ministério da Educação
-%   %\item[MMach] Mathematical Morphology toolbox for the KHOROS
-%   %\item[SisGRAFO] Sistema Gráfico de Otimização para Suporte
-% à Decisão
-%   \item[UFABC] Universidade Federal do ABC
-%   \item[UFES] Universidade Federal do Espírito Santo
-%   \item[UNICAMP] Universidade Estadual de Campinas
-%   \item[USP] Universidade de São Paulo
-% \end{siglas}
+\input{extras/siglas.tex}
 
 % % Lista de símbolos
 % \begin{simbolos}

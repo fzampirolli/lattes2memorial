@@ -426,12 +426,11 @@ class lattes(object):
             if len(v0) > lattes.desenhaGraficos:  # desenha gráficos
 
                 s = '''
-A Figura \\ref{figs:orientacoes__tipo____tipo2__} mostra o número de orientações por ano de __tipo3__,
-considerando a data de início.
+A Figura \\ref{figs:orientacoes__tipo____tipo2__} mostra, considerando a data de início, o número de orientações por ano de __tipo3__.
 \\begin{figure}[!h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/Orientacoes__tipo____tipo2__.png}
-\caption{Orientações por Ano (__tipo3__)}
+\caption{Orientações por ano (__tipo3__)}
 \label{figs:orientacoes__tipo____tipo2__}
 \end{figure}
     '''
@@ -450,11 +449,11 @@ considerando a data de início.
                 plt.figure(figsize=lattes.figsize)
                 fig, ax = plt.subplots()
                 ax.tick_params(axis='x', labelrotation=90)
-                if tipo2:
-                    ax.set_title(
-                        'Orientações por Ano (' + ts + ')')
-                else:
-                    ax.set_title('Orientações por Ano (' + tipo + ')')
+                # if tipo2:
+                #     ax.set_title(
+                #         'Orientações por ano (' + ts + ')')
+                # else:
+                #     ax.set_title('Orientações por ano (' + tipo + ')')
                 ax.set_ylabel("Quantidade")
                 # ax.set_xlabel('Qualis')
                 ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
@@ -464,6 +463,8 @@ considerando a data de início.
                 plt.savefig('figs/Orientacoes' + tipo + ts[:4] + '.png')
                 plt.close()
 
+            # ss0 = ss0.replace('Aperfeiçoamento/Especialização',
+            #                  'Aperfeiçoamento / Especialização')
             if len(ss0) < 100:
                 ss0 = 'sem dados'
             with open('./texLattes/Orientacoes' + tipo + ts[:4] + '.tex', 'w') as f:
@@ -547,7 +548,7 @@ considerando a data de início.
         ss0 += ''.join([v[1] for v in vSort])
         ss0 += '\n\n\\end{enumerate}\n'
 
-        if len(ss0) < 50:
+        if len(ss0) < 100:
             ss0 = 'sem orientações e andamento - ' + tipo
         with open('./texLattes/OrientacoesAndamento' + tipo + '.tex', 'w') as f:
             f.writelines(ss0)
@@ -662,7 +663,7 @@ considerando a data de início.
             width = 0.35  # the width of the bars
 
             fig, ax = plt.subplots()
-            ax.set_title('Artigos por Qualis em ' + lattes.renomeia[tipo])
+            #ax.set_title('Artigos por Qualis em ' + lattes.renomeia[tipo])
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
             ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
@@ -694,7 +695,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
 \end{figure}'''
             ss0 += s.replace('__tipo__', lattes.renomeia[tipo])
 
-        # DESENHA FIGURA QUALIS POR ANO
+        # DESENHA FIGURA QUALIS por ano
         if len(qualisAno):
 
             qualisAno2 = dict()
@@ -730,8 +731,8 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
             if tamanho == 'RESUMO':
                 tamanhoStr += ' (Resumo)'
 
-            ax.set_title('Artigos por Ano em ' +
-                         lattes.renomeia[tipo] + tamanhoStr)
+            #ax.set_title('Artigos por ano em ' +
+            #             lattes.renomeia[tipo] + tamanhoStr)
             ax.set_ylabel("Soma (A1=10, ..., C=2, SQ=1) ")
             # ax.set_xlabel('Anos')
 
@@ -777,7 +778,7 @@ Onde SQ é Sem Qualis e nesta figura tem peso de apenas uma unidade na vertical.
 \\begin{figure}[!h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/Qualis__tipo____tipo2__Ano.png}
-\caption{Artigos por Ano em __tipo__ __tipo3__}
+\caption{Artigos por ano em __tipo__ __tipo3__}
 \label{figs:qualis__tipo____tipo2__Ano}
 \end{figure}  '''
             ss0 += s.replace('__tipo__',
@@ -903,8 +904,15 @@ Onde SQ é Sem Qualis e nesta figura tem peso de apenas uma unidade na vertical.
             s = '''
 A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
 de autores dos artigos em __tipo____tipo3__.
-Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/Grafo__tipo____tipo2__Ano.html}{grafo com movimento}
-para uma melhor visualização.
+Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/Grafo__tipo____tipo2__Ano.html}
+{grafo com movimento} para uma melhor visualização.
+\
+Os relacionamentos dos autores na Figura 
+\\ref{figs:grafo__tipo____tipo2__Ano} foram gerados utilizando a biblioteca 
+\href{https://networkx.org/documentation/stable/reference/algorithms/community.html}
+{\\texttt{networkx.algorithms.community}}. A URL para o grafo dos relacionamentos dos 
+autores, agora com movimentos, foi gerada utilizando a biblioteca 
+\href{https://pyvis.readthedocs.io/en/latest/tutorial.html}{\\texttt{pyvis.network}}.
 \\begin{figure}[!h]
 \centering
 \includegraphics[width=1.0\\textwidth]{figs/Grafo__tipo____tipo2__Ano.png}\\vspace{-1cm}
@@ -954,7 +962,7 @@ para uma melhor visualização.
                                     if t:
                                         ss += t + '. '
                                     ss += ano + ' ('
-                                    ss += v1[evento[1]]["@NATUREZA"].lower() + \
+                                    ss += v1[evento[1]]["@NATUREZA"].lower().replace('simposio', 'simpósio').replace('seminario', 'seminário') + \
                                         '). '
                                     t = v1[evento[1]]['@TIPO-PARTICIPACAO']
                                     if t:
@@ -974,7 +982,7 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
 \\begin{figure}[!h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/Eventos__tipo__.png}
-\caption{Eventos por Ano (__tipo__)}
+\caption{Eventos por ano (__tipo__)}
 \label{figs:eventos__tipo__}
 \end{figure}
 '''
@@ -988,7 +996,7 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
             plt.figure(figsize=lattes.figsize)
             fig, ax = plt.subplots()
             ax.tick_params(axis='x', labelrotation=90)
-            ax.set_title('Eventos por Ano (' + tipo + ')')
+            #ax.set_title('Eventos por ano (' + tipo + ')')
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
             ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
@@ -1034,7 +1042,7 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
                             if t:
                                 ss += t + '. '
                             ss += ano + ' ('
-                            ss += v1[evento[1]]["@NATUREZA"].lower() + \
+                            ss += v1[evento[1]]["@NATUREZA"].lower().replace('simposio', 'simpósio').replace('seminario', 'seminário') + \
                                 '). '
                             ss += lattes.pegaIDbib(titulo)
                             ssLista.append([int(ano), ss])
@@ -1051,7 +1059,7 @@ A Figura \\ref{figs:apresentacoes} mostra o número de apresentações por ano.
 \\begin{figure}[!h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/Apresentacoes.png}
-\caption{Apresentações por Ano}
+\caption{Apresentações por ano}
 \label{figs:apresentacoes}
 \end{figure}
 '''
@@ -1065,7 +1073,7 @@ A Figura \\ref{figs:apresentacoes} mostra o número de apresentações por ano.
             plt.figure(figsize=lattes.figsize)
             fig, ax = plt.subplots()
             ax.tick_params(axis='x', labelrotation=90)
-            ax.set_title('Apresentações por Ano')
+            #ax.set_title('Apresentações por ano')
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
             ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
@@ -1151,7 +1159,7 @@ A Figura \\ref{figs:publicacoes__tipo__} mostra as publicações (__tipo1__) por
             plt.figure(figsize=lattes.figsize)
             fig, ax = plt.subplots()
             ax.tick_params(axis='x', labelrotation=90)
-            ax.set_title(f'Publicações ({lattes.renomeia[tipo]})')
+            #ax.set_title(f'Publicações ({lattes.renomeia[tipo]})')
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
             ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
@@ -1161,9 +1169,15 @@ A Figura \\ref{figs:publicacoes__tipo__} mostra as publicações (__tipo1__) por
             plt.savefig('figs/Publicacoes'+tipo+'.png')
             plt.close()
 
-        with open('./texLattes/Publicacoes'+tipo+'.tex', 'w') as f:
-            f.writelines(ss0)
-        f.close()
+        if len(ss0) < 100:
+            with open('./texLattes/Publicacoes'+tipo+'.tex', 'w') as f:
+                f.writelines('sem dados em publicacoes:' + tipo)
+            f.close()
+            return ''
+        else:
+            with open('./texLattes/Publicacoes'+tipo+'.tex', 'w') as f:
+                f.writelines(ss0)
+            f.close()
 
     def pegaProducoesTecnicas(tipo):
 
@@ -1266,7 +1280,7 @@ A Figura \\ref{figs:ProducoesTecnicas__tipo__} mostra as produções técnicas (
             plt.figure(figsize=lattes.figsize)
             fig, ax = plt.subplots()
             ax.tick_params(axis='x', labelrotation=90)
-            ax.set_title(f'Produções Técnicas ({lattes.renomeia[tipo]})')
+            #ax.set_title(f'Produções Técnicas ({lattes.renomeia[tipo]})')
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
             ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
@@ -1328,7 +1342,7 @@ A Figura \\ref{figs:Premios} mostra o número de prêmios por ano.
 \\begin{figure}[!h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/Premios.png}
-\caption{Prêmios por Ano}
+\caption{Prêmios por ano}
 \label{figs:Premios}
 \end{figure}
 '''
@@ -1342,7 +1356,7 @@ A Figura \\ref{figs:Premios} mostra o número de prêmios por ano.
             plt.figure(figsize=lattes.figsize)
             fig, ax = plt.subplots()
             ax.tick_params(axis='x', labelrotation=90)
-            ax.set_title(f'Prêmios por Ano')
+            #ax.set_title(f'Prêmios por ano')
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
             ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
@@ -1428,7 +1442,7 @@ A Figura \\ref{figs:Bancas__tipo__} mostra o número participações em bancas (
 \\begin{figure}[!h]
 \centering
 \includegraphics[width=0.8\\textwidth]{figs/Bancas__tipo__.png}
-\caption{Bancas (__tipo__) por Ano}
+\caption{Bancas (__tipo__) por ano}
 \label{figs:Bancas__tipo__}
 \end{figure}
 '''
@@ -1442,7 +1456,7 @@ A Figura \\ref{figs:Bancas__tipo__} mostra o número participações em bancas (
             plt.figure(figsize=lattes.figsize)
             fig, ax = plt.subplots()
             ax.tick_params(axis='x', labelrotation=90)
-            ax.set_title(f'Bancas ({tipo}) por Ano')
+            #ax.set_title(f'Bancas ({tipo}) por ano')
             ax.set_ylabel("Quantidade")
             # ax.set_xlabel('Qualis')
             ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
@@ -1452,7 +1466,7 @@ A Figura \\ref{figs:Bancas__tipo__} mostra o número participações em bancas (
             plt.savefig(f'figs/Bancas{tipo}.png')
             plt.close()
 
-        if len(ss0) < 50:
+        if len(ss0) < 100:
             ss0 = 'sem bancas - ' + tipo
         with open('./texLattes/Bancas' + tipo + '.tex', 'w') as f:
             f.writelines(ss0)
