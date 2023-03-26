@@ -62,7 +62,7 @@ source lattesEnv/bin/activate
 * https://lattes.cnpq.br/
 * Atualizar currículo
 * Exportar (final da aba vertical à esquerda)
-* Escolher xml e Continuar
+* Escolher XML e Continuar
 
 # 👇️ Mover "CV_*.zip" para a pasta correta
 ```
