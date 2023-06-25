@@ -55,6 +55,7 @@ class lattes(object):
     renomeia["Dissertação de mestrado"] = "Dissertação de mestrado"
     renomeia["ORIENTACAO-DE-OUTRA-NATUREZA"] = "Orientação de outra natureza"
     renomeia["ORIENTADOR_PRINCIPAL"] = "Orientador principal"
+    renomeia["Trabalho de conclusão de curso de graduação"] = "Trabalho de conclusão de curso de graduação"
 
     natureza = ["Doutorado", "Mestrado",
                 "ORIENTACAO-DE-OUTRA-NATUREZA",
