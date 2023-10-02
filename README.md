@@ -21,9 +21,12 @@ Créditos:
 
 Ver um trabalho relacionado, gerando html, em https://github.com/rafatieppo/lucylattes.
 
-# Exemplo de Memorial - Prof. Francisco Zampirolli
+# Exemplo de Memorial Gerado
+
+Esse arquivo foi gerado automaticamente a partir deste serviço, que foi adaptado para atender aos conteúdos específicos do Lattes do autor:
 
 [memorial-zampirolli.pdf](https://github.com/fzampirolli/lattes2memorial/blob/main/memorial-zampirolli.pdf)
+
 
 # Para rodar localmente
 
