@@ -20,6 +20,11 @@ Créditos:
 * `pyvis.network` para grafo com movimento de agrupamento de autores
 
 Ver um trabalho relacionado, gerando html, em https://github.com/rafatieppo/lucylattes.
+
+# Exemplo de Memorial - Prof. Francisco Zampirolli
+
+[memorial-zampirolli.pdf](https://github.com/fzampirolli/lattes2memorial/blob/main/memorial-zampirolli.pdf)
+
 # Para rodar localmente
 
 ## Instalar python, pip, git, etc (se ainda não tiver instalado)
