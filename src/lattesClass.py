@@ -55,6 +55,7 @@ class lattes(object):
     renomeia["Dissertação de mestrado"] = "Dissertação de mestrado"
     renomeia["ORIENTACAO-DE-OUTRA-NATUREZA"] = "Orientação de outra natureza"
     renomeia["ORIENTADOR_PRINCIPAL"] = "Orientador principal"
+    renomeia["Trabalho de conclusão de curso de graduação"] = "Trabalho de conclusão de curso de graduação"
 
     natureza = ["Doutorado", "Mestrado",
                 "ORIENTACAO-DE-OUTRA-NATUREZA",
@@ -1246,9 +1247,12 @@ A Figura \\ref{figs:publicacoes__tipo__} mostra as publicações (__tipo1__) por
                                     autores.append(a0)
                         elif 'AUTORES' in v2.keys() and v2['AUTORES']:
                             for a in v2['AUTORES']:
-                                a0 = a['@NOME-PARA-CITACAO'].upper()
-                                ss += a0 + "; "
-                                autores.append(a0)
+                                if isinstance(a, dict):
+                                    a0 = a['@NOME-PARA-CITACAO'].upper() # <<< ERRO
+                                    ss += a0 + "; "
+                                    autores.append(a0)
+                                else:
+                                    autores.append('ERRO 1255 !!!; ')
 
                         ss = ss[:-2] + '. '
                         ssLista.append([int(ano), ss])

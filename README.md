@@ -54,7 +54,7 @@ git clone git@github.com:fzampirolli/lattes2memorial.git
 ```
 cd lattes2memorial
 pip install virtualenv
-virtualenv -p python3.8 lattesEnv
+virtualenv -p python lattesEnv
 source lattesEnv/bin/activate
 ```
 
