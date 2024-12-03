@@ -907,7 +907,7 @@ Onde SQ é Sem Qualis e nesta figura tem peso de apenas uma unidade na vertical.
             s = '''
 A Figura \\ref{figs:grafo__tipo____tipo2__Ano} mostra os relacionamentos
 de autores dos artigos em __tipo____tipo3__.
-Ver também \href{http://vision.ufabc.edu.br/pub/classeE/figs/Grafo__tipo____tipo2__Ano.html}
+Ver também \href{http://mctest.ufabc.edu.br:8000/lattes2memorial/src/figs/Grafo__tipo____tipo2__Ano.html}
 {grafo com movimento} para uma melhor visualização.
 \
 Os relacionamentos dos autores na Figura 
@@ -920,7 +920,7 @@ autores, agora com movimentos, foi gerada utilizando a biblioteca
 \centering
 \includegraphics[width=1.0\\textwidth]{figs/Grafo__tipo____tipo2__Ano.png}\\vspace{-1cm}
 \caption{Relacionamentos de autores dos artigos em __tipo__ __tipo3__ - ver
-\href{http://vision.ufabc.edu.br/pub/classeE/figs/Grafo__tipo____tipo2__Ano.html}{grafo com movimento}}
+\href{http://mctest.ufabc.edu.br:8000/lattes2memorial/src/figs/Grafo__tipo____tipo2__Ano.html}{grafo com movimento}}
 \label{figs:grafo__tipo____tipo2__Ano}
 \end{figure} '''
             ss0 += s.replace('__tipo__',
