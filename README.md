@@ -9,7 +9,7 @@ Serviço em construção, portanto melhorias são necessárias nesse processo!
 Porém, podem testar localmente ou no servidor abaixo sem ter que instalar nada:
 * http://mctest.ufabc.edu.br:8000/lattes2memorial/
 
-O conteúdo deste GitHub é exatamente o que está rodando nesses servidores.
+O conteúdo deste GitHub é exatamente o que está rodando nesse servidor.
 
 Créditos: 
 * https://pt.overleaf.com/latex/templates/template-ufabc-dissertacao/zmwgdkcsrxjb (adaptado)
@@ -28,6 +28,8 @@ Esse arquivo foi gerado automaticamente a partir deste serviço, que foi adaptad
 
 
 # Para rodar localmente
+
+## No Google Colab: https://colab.research.google.com/drive/1qFGri7CySne3gc2l5YFfdKXQkCq3lULa?pli=1&usp=drive_fs#scrollTo=GLWRgde4mqGL
 
 ## Instalar python, pip, git, etc (se ainda não tiver instalado)
 
