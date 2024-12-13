@@ -29,7 +29,8 @@ Esse arquivo foi gerado automaticamente a partir deste serviço, que foi adaptad
 
 # Para rodar localmente
 
-## No Google Colab: https://colab.research.google.com/drive/1qFGri7CySne3gc2l5YFfdKXQkCq3lULa?pli=1&usp=drive_fs#scrollTo=GLWRgde4mqGL
+## No Google Colab: 
+https://colab.research.google.com/drive/1qFGri7CySne3gc2l5YFfdKXQkCq3lULa?pli=1&usp=drive_fs#scrollTo=GLWRgde4mqGL
 
 ## Instalar python, pip, git, etc (se ainda não tiver instalado)
 
