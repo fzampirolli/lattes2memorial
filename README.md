@@ -29,6 +29,10 @@ Esse arquivo foi gerado automaticamente a partir deste serviço, que foi adaptad
 
 # Para rodar localmente
 
+## No Googl Colab
+
+https://colab.research.google.com/drive/1qFGri7CySne3gc2l5YFfdKXQkCq3lULa?pli=1&usp=drive_fs#scrollTo=s6f0tRo_rtFN
+
 ## Instalar python, pip, git, etc (se ainda não tiver instalado)
 
 ### 👇️ Debian / Ubuntu
@@ -78,6 +82,7 @@ mv CV_*.zip lattes2memorial/src
 
 # 👇️ Instalar bibliotecas e rodar na pasta src
 ```
+git clone https://github.com/arademaker/SLattes.git 
 python lattes2memorial.py instala
 python lattes2memorial.py
 python lattes2memorial.py limpa #(se desejar apagar todos os arquivos criados)
