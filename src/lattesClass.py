@@ -57,14 +57,18 @@ class lattes(object):
     renomeia["ORIENTADOR_PRINCIPAL"] = "Orientador principal"
     renomeia["Trabalho de conclusão de curso de graduação"] = "Trabalho de conclusão de curso de graduação"
     renomeia["Tese de doutorado"] = "Tese de doutorado"
-    renomeia["CO_ORIENTADOR"] = "Co-Orientador"
+    renomeia["EQUENCIA-PRODUCAO"] = "Sequência de produção"
+    renomeia["DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO"] = "Detalhamento de orientações concluídas para doutorado"
+
+
 
     natureza = ["Doutorado", "Mestrado",
                 "ORIENTACAO-DE-OUTRA-NATUREZA",
                 "INICIACAO_CIENTIFICA",
                 "TRABALHO_DE_CONCLUSAO_DE_CURSO_GRADUACAO",
                 "MONOGRAFIA_DE_CONCLUSAO_DE_CURSO_APERFEICOAMENTO_E_ESPECIALIZACAO",
-                "ORIENTACAO-DE-OUTRA-NATUREZA"]
+                "ORIENTACAO-DE-OUTRA-NATUREZA",
+                "DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO"]
 
     naturezaAndamento = ["Doutorado", "Mestrado",
                          "Graduacao"]
@@ -403,6 +407,8 @@ class lattes(object):
                         if k0 == vo[0]:
                             for i in d[k][k0]:
                                 if tipo in lattes.natureza[:2] or (tipo2 and tipo2 == i[vo[1]]["@NATUREZA"]):
+                                    if isinstance(i, str) or vo[2] not in i.keys():
+                                        continue
                                     ss = '\n\n\\item '
                                     ss += i[vo[2]]["@NOME-DO-ORIENTADO"] + '. '
                                     ss += i[vo[1]]["@TITULO"] + '. '
