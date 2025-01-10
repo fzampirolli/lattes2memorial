@@ -57,7 +57,7 @@ class lattes(object):
     renomeia["ORIENTADOR_PRINCIPAL"] = "Orientador principal"
     renomeia["Trabalho de conclusão de curso de graduação"] = "Trabalho de conclusão de curso de graduação"
     renomeia["Tese de doutorado"] = "Tese de doutorado"
-    renomeia["EQUENCIA-PRODUCAO"] = "Sequência de produção"
+    renomeia["SEQUENCIA-PRODUCAO"] = "Sequência de produção"
     renomeia["DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO"] = "Detalhamento de orientações concluídas para doutorado"
 
 
