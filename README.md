@@ -27,7 +27,7 @@ Esse arquivo foi gerado automaticamente a partir deste serviço, que foi adaptad
 [memorial-zampirolli.pdf](https://github.com/fzampirolli/lattes2memorial/blob/main/memorial-zampirolli.pdf)
 
 
-# Para rodar localmente
+# Para executar no Colab ou localmente
 
 ## Instalar python, pip, git, etc (se ainda não tiver instalado)
 
@@ -76,7 +76,7 @@ source lattesEnv/bin/activate
 mv CV_*.zip lattes2memorial/src
 ```
 
-# 👇️ Instalar bibliotecas e rodar na pasta src
+# 👇️ Instalar bibliotecas e executar na pasta src
 ```
 python lattes2memorial.py instala
 python lattes2memorial.py
