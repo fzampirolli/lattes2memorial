@@ -11,7 +11,7 @@ function custom_copy($src, $dst)
     if (($file != '.') && ($file != '..')) {
       if (is_dir($src . '/' . $file)) {
         // Recursively calling custom copy function
-        // for sub directory 
+        // for sub directory
         custom_copy($src . '/' . $file, $dst . '/' . $file);
       } else {
         copy($src . '/' . $file, $dst . '/' . $file);
@@ -93,56 +93,151 @@ if (isset($_FILES['image'])) {
 <html lang="pt-br">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>lattes2memorial</title>
   <style>
-    div {
-      background-color: lightgrey;
-      width: 85%;
-      border: 10px solid green;
-      padding: 30px;
-      margin: 20px;
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    ul {
+      list-style-type: square;
+      padding-left: 20px;
+    }
+
+    ul li {
+      margin-bottom: 10px;
+    }
+
+    a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    form {
+      margin-top: 20px;
+    }
+
+    form label {
+      font-weight: bold;
+    }
+
+    form input[type="file"] {
+      margin: 10px 0;
+    }
+
+    form input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    form input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    pre {
+      background-color: #f8f8f8;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+
+    footer img {
+      vertical-align: middle;
+      margin-right: 10px;
     }
   </style>
-
-  <title>lattes2memorial</title>
 </head>
 
 <body>
-  <h1>Serviço para fazer upload do zip gerado pelo lattes e converter para latex</h1>
-  <hr>
-  <div>
+  <header>
+    <h1>lattes2memorial</h1>
+  </header>
+
+  <div class="container">
+    <h2>Serviço de Upload e Conversão</h2>
+    <p>
+      Este serviço permite enviar um arquivo ZIP gerado pela <a href="https://lattes.cnpq.br/">plataforma Lattes</a> e obter os arquivos necessários para gerar um documento LaTeX.
+    </p>
     <ul>
-      <li> Submeter examente o zip gerado pela plataforma lattes no formato "CV_*.zip" (ver <a href="https://github.com/fzampirolli/lattes2memorial" target="_blank">GitHub</a>); </li>
-      <li> Após clicar no botão Enviar abaixo, o servidor cria todos os arquivos necessários para gerar o PDF pelo latex; </li>
-      <li> Estes arquivos estarão dentro de uma pasta que será compactada e enviada de volta ao seu computador; </li>
-      <li> Todos os arquivos do servidor referente ao seu lattes serão removidos após esse envio; </li>
-      <li> O conteúdo deste zip poderá ser adaptado como desejar em seu computador, após instalar as bibliotecas necessárias; </li>
-      <li> Todos os fontes para processar localmente estão também nesse zip, contendo o mesmo conteúdo genérico que está no <a href="https://github.com/fzampirolli/lattes2memorial" target="_blank">GitHub</a>; </li>
-      <li> Bugs poderão existir, pois esse gerador de conteúdo foi criado para atender as necessidades do lattes do autor; </li>
-      <li> Assim, melhorias deverão ocorrer, conforme feedbacks; </li>
-      <li> Sugestões são sempre bem vindas: <a href="mailto:fzampirolli@ufabc.edu.br" target="_self">enviar e-mail</a>. </li>
+      <li>Envie o arquivo ZIP gerado pela plataforma Lattes exatamente no formato "CV_ID.zip", onde "ID" corresponde ao identificador único atribuído ao seu currículo na plataforma Lattes. Ver detalhes no <a href="https://github.com/fzampirolli/lattes2memorial" target="_blank">GitHub</a>.</li>
+      <li>Após o envio, o servidor processa e cria os arquivos necessários para gerar um PDF pelo LaTeX.</li>
+      <li>Os arquivos estarão compactados em um ZIP para download.</li>
+      <li>Todos os arquivos no servidor relacionados ao seu Lattes serão removidos após o download.</li>
+      <li>O conteúdo do ZIP pode ser adaptado no seu computador após a instalação das bibliotecas necessárias.</li>
+      <li>Os arquivos contêm o mesmo conteúdo genérico disponível no
+        <a href="https://github.com/fzampirolli/lattes2memorial" target="_blank">GitHub</a>.</li>
+      <li>Bugs podem existir, pois este gerador foi criado para atender necessidades específicas do autor.</li>
+      <li>Feedbacks e sugestões são bem-vindos. Entre em contato por e-mail:
+        <a href="mailto:fzampirolli@ufabc.edu.br" target="_self">enviar e-mail</a>.</li>
     </ul>
-    <h4>
-    </h4>
 
     <hr>
-    <p>
+
+    <h3>Envie seu arquivo</h3>
     <form action="" method="POST" enctype="multipart/form-data">
-      <input type="file" name="image" />
-      <input type="submit" />
+      <label for="file-input">Escolha o arquivo ZIP:</label><br />
+      <input id="file-input" type="file" name="image" /><br /><br />
+      <input type="submit" value="Enviar" />
     </form>
-    <p>
+
+    <p>Após o download, use o comando abaixo para descompactar o arquivo:</p>
+    <pre><code>unzip CV_ID_lattes.zip</code></pre>
   </div>
 
-  <hr>
-
-  <a href="https://www.gnu.org/licenses/agpl-3.0.html"><img src="http://mctest.ufabc.edu.br:8000/static/agplv3.png"></a>
-
-  <a href="#">Copyright © 2023</a> por
-
-  <a href="https://sites.google.com/site/fzampirolli/">Francisco de Assis Zampirolli</a> da
-
-  <a href="http://www.ufabc.edu.br">UFABC</a> e colaboradores, em especial ao prof. <a href="https://www.ufabc.edu.br/ensino/docentes/irineu-antunes-junior">Irineu Antunes Júnior</a>.
-
+  <footer>
+    <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank">
+      <img src="http://mctest.ufabc.edu.br:8000/static/agplv3.png" alt="AGPL v3" width="50">
+    </a>
+    <p>
+      Copyright © 2023-2025 por
+      <a href="https://sites.google.com/site/fzampirolli/" target="_blank">Francisco de Assis Zampirolli</a> da
+      <a href="http://www.ufabc.edu.br" target="_blank">UFABC</a> e colaboradores.
+    </p>
+  </footer>
 </body>
 
 </html>
