@@ -29,6 +29,12 @@ Esse arquivo foi gerado automaticamente a partir deste serviço, que foi adaptad
 
 # Para executar no Colab ou localmente
 
+## Executar no Colab
+
+Fazer download do arquivo [lattes2memorial.ipynb](https://github.com/fzampirolli/lattes2memorial/blob/main/lattes2memorial.ipynb) e abrir no Google Drive. 
+
+Ou executar diretamente esse [link](https://drive.google.com/open?id=1qFGri7CySne3gc2l5YFfdKXQkCq3lULa&usp=drive_fs).
+
 ## Instalar python, pip, git, etc (se ainda não tiver instalado)
 
 ### 👇️ Debian / Ubuntu

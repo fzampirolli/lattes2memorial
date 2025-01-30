@@ -59,8 +59,7 @@ class lattes(object):
     renomeia["Tese de doutorado"] = "Tese de doutorado"
     renomeia["SEQUENCIA-PRODUCAO"] = "Sequência de produção"
     renomeia["DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO"] = "Detalhamento de orientações concluídas para doutorado"
-
-
+    renomeia["CO_ORIENTADOR"] = "Co-orientador"
 
     natureza = ["Doutorado", "Mestrado",
                 "ORIENTACAO-DE-OUTRA-NATUREZA",
