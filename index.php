@@ -57,9 +57,31 @@ if (isset($_FILES['image'])) {
 
 
     $file =  $dst . "_lattes.zip";
-    header('Content-Type: application/octet-stream');
-    header("Content-Transfer-Encoding: utf-8");
-    header("Content-disposition: attachment; filename=\"" . basename($file) . "\"");
+    //header('Content-Type: application/octet-stream');
+    //header("Content-Transfer-Encoding: utf-8");
+    //header("Content-disposition: attachment; filename=\"" . basename($file) . "\"");
+
+    // Verifique se o arquivo existe
+    if (!file_exists($file)) {
+        die("Arquivo ZIP não encontrado");
+    }
+
+    // Verifique as permissões do arquivo
+    if (!is_readable($file)) {
+        die("Sem permissão para ler o arquivo");
+    }
+
+    // Defina headers mais explícitos
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+    header('Content-Length: ' . filesize($file));
+    header('Cache-Control: no-cache');
+    header('Pragma: no-cache');
+
+    // Limpe qualquer saída de buffer
+    ob_clean();
+    flush();
+
     readfile($file);
 
     echo "<pre>download file " . $file . "</pre>";
@@ -189,7 +211,59 @@ if (isset($_FILES['image'])) {
       vertical-align: middle;
       margin-right: 10px;
     }
+
+      .button-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 3px solid #fff;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
   </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.querySelector('form');
+      const spinner = document.getElementById('spinner');
+      const submitButton = document.getElementById('submit-btn');
+      const fileInput = document.getElementById('file-input');
+
+      form.addEventListener('submit', function (e) {
+        if (!fileInput.files.length) {
+          e.preventDefault();
+          alert('Por favor, selecione um arquivo ZIP antes de enviar.');
+          return;
+        }
+
+        // Mostra o spinner ao lado do botão
+        spinner.style.display = 'inline-block';
+        submitButton.disabled = true;
+
+        // Remove o spinner após 7 segundos (tempo estimado para download iniciar)
+        setTimeout(() => {
+          spinner.style.display = 'none';
+          submitButton.disabled = false;
+        }, 7000);
+      });
+    });
+  </script>
+
+
+
 </head>
 
 <body>
@@ -218,14 +292,19 @@ if (isset($_FILES['image'])) {
     <hr>
 
     <h3>Envie seu arquivo</h3>
+
+
     <form action="" method="POST" enctype="multipart/form-data">
       <label for="file-input">Escolha o arquivo ZIP:</label><br />
       <input id="file-input" type="file" name="image" /><br /><br />
-      <input type="submit" value="Enviar" />
+
+      <div class="button-wrapper">
+        <input id="submit-btn" type="submit" value="Enviar" />
+        <div id="spinner" class="spinner"></div>
+      </div>
     </form>
 
-    <p>Após o download, use o comando abaixo para descompactar o arquivo:</p>
-    <pre><code>unzip CV_ID_lattes.zip</code></pre>
+
   </div>
 
   <footer>
