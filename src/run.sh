@@ -9,7 +9,6 @@ folder=${folder:-/}        # to correct for the case where PWD=/
 cd tmp
 
 echo $folder
-
 #chmod 777 -R $folder
 
 cd $folder
@@ -19,7 +18,6 @@ cd $folder
 cd ../
 
 zip -r ${folder}_lattes.zip $folder
-#tar -zcf $folder.tar.gz $folder
 
 echo "compactado "$folder"_lattes.zip"
 rm -rf $folder
