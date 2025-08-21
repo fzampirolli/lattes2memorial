@@ -19,10 +19,15 @@ GNU General Public License for more details.
 
 import sys
 import os
+
 if len(sys.argv) == 2 and sys.argv[1] == 'instala':
-    os.system("python -m pip install -r requirements.txt")
-    print('\nlattes2memorial: bibliotecas necessárias instaladas.\n')
+    exit_code = os.system("python -m pip install -r requirements.txt > /dev/null 2>&1")
+    if exit_code == 0:
+        print('\nlattes2memorial: bibliotecas necessárias instaladas.\n')
+    else:
+        print('\nlattes2memorial: houve erro na instalação, mas continuando.\n')
     exit(0)
+
 
 if not os.path.exists('texLattes'):
     os.makedirs('texLattes')
