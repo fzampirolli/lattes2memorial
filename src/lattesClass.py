@@ -16,6 +16,7 @@ GNU General Public License for more details.
 =====================================================================
 '''
 
+
 import fileinput
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -28,6 +29,7 @@ import xmltodict
 import json
 import pandas as pd
 from PyPDF2 import PdfReader
+from datetime import datetime
 
 
 class lattes(object):
@@ -60,6 +62,7 @@ class lattes(object):
     renomeia["SEQUENCIA-PRODUCAO"] = "Sequência de produção"
     renomeia["DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-DOUTORADO"] = "Detalhamento de orientações concluídas para doutorado"
     renomeia["CO_ORIENTADOR"] = "Co-orientador"
+    renomeia["PROJETO-DE-PESQUISA"] = "Projeto de Pesquisa"
 
     natureza = ["Doutorado", "Mestrado",
                 "ORIENTACAO-DE-OUTRA-NATUREZA",
@@ -1482,3 +1485,341 @@ A Figura \\ref{figs:Bancas__tipo__} mostra o número participações em bancas (
         with open('./texLattes/Bancas' + tipo + '.tex', 'w') as f:
             f.writelines(ss0)
         f.close()
+
+    # --- Função Auxiliar ---
+    @staticmethod
+    def to_list(value):
+        """Garante que o valor de entrada seja sempre uma lista."""
+        if isinstance(value, list):
+            return value
+        # Se o valor for None (não encontrado), retorna uma lista vazia
+        elif value is None:
+            return []
+        # Se for um único item (dicionário), coloca-o dentro de uma lista
+        else:
+            return [value]
+
+
+    def pegaProjetosPesquisa():
+        """
+        Extrai, formata e salva os projetos de pesquisa do currículo Lattes,
+        incluindo detalhes e destacando o coordenador do projeto.
+        """
+        dados_gerais = lattes.jsonLattes.get("CURRICULO-VITAE", {}).get("DADOS-GERAIS", {})
+        atuacoes_profissionais = dados_gerais.get("ATUACOES-PROFISSIONAIS", {})
+
+        nome_pesquisador = dados_gerais.get("@NOME-COMPLETO", "Pesquisador Principal")
+
+        ssLista = []
+        lista_atuacoes = lattes.to_list(atuacoes_profissionais.get("ATUACAO-PROFISSIONAL"))
+
+        for atuacao in lista_atuacoes:
+            atividades_participacao = atuacao.get("ATIVIDADES-DE-PARTICIPACAO-EM-PROJETO")
+            if not atividades_participacao:
+                continue
+
+            lista_participacoes = lattes.to_list(atividades_participacao.get("PARTICIPACAO-EM-PROJETO"))
+
+            for participacao in lista_participacoes:
+                lista_projetos_pesquisa = lattes.to_list(participacao.get("PROJETO-DE-PESQUISA"))
+
+                for projeto in lista_projetos_pesquisa:
+                    nome_projeto = projeto.get("@NOME-DO-PROJETO", "Nome não informado")
+                    ano_inicio = projeto.get("@ANO-INICIO", "")
+                    ano_fim = projeto.get("@ANO-FIM", "")
+                    natureza = projeto.get("@NATUREZA", "")
+                    descricao = projeto.get("@DESCRICAO-DO-PROJETO", "")
+                    eh_coordenador = projeto.get("@FLAG-RESPONSAVEL", "NAO") == "SIM"
+
+                    situacao = ""
+                    if ano_fim:
+                        try:
+                            if int(ano_fim) < datetime.now().year:
+                                situacao = "Concluído"
+                            else:
+                                situacao = "Em andamento"
+                        except (ValueError, TypeError):
+                            situacao = "Situação indefinida"
+                    elif ano_inicio:
+                        situacao = "Em andamento"
+
+                    # Extrai a equipe mantendo os dados completos de cada integrante
+                    equipe_projeto = projeto.get("EQUIPE-DO-PROJETO", {})
+                    lista_integrantes = lattes.to_list(equipe_projeto.get("INTEGRANTES-DO-PROJETO"))
+
+                    financiadores_projeto = projeto.get("FINANCIADORES-DO-PROJETO", {})
+                    lista_financiadores = lattes.to_list(financiadores_projeto.get("FINANCIADOR-DO-PROJETO"))
+                    nomes_financiadores = [f.get("@NOME-INSTITUICAO", "") for f in lista_financiadores if f.get("@NOME-INSTITUICAO")]
+
+                    alunos_parts = []
+                    if 'ALUNOS-ENVOLVIDOS' in projeto:
+                        alunos_info = projeto["ALUNOS-ENVOLVIDOS"]
+                        if alunos_info.get('@NUMERO-ALUNOS-GRADUACAO', '0') != '0': alunos_parts.append(f"Graduação ({alunos_info['@NUMERO-ALUNOS-GRADUACAO']})")
+                        if alunos_info.get('@NUMERO-ALUNOS-MESTRADO', '0') != '0': alunos_parts.append(f"Mestrado ({alunos_info['@NUMERO-ALUNOS-MESTRADO']})")
+                        if alunos_info.get('@NUMERO-ALUNOS-DOUTORADO', '0') != '0': alunos_parts.append(f"Doutorado ({alunos_info['@NUMERO-ALUNOS-DOUTORADO']})")
+
+                    producoes_ct = projeto.get("PRODUCOES-CT-DO-PROJETO", {})
+                    num_producoes = len(lattes.to_list(producoes_ct.get("PRODUCAO-CT-DO-PROJETO")))
+
+                    # --- Montagem da string LaTeX no novo formato ---
+                    ss = f'\n\n\\item \\textbf{{{nome_projeto}}}'
+
+                    details1 = []
+                    if ano_inicio:
+                        periodo_str = f"{ano_inicio} -- {ano_fim}" if ano_fim else ano_inicio
+                        details1.append(f"\\textbf{{Período:}} {periodo_str}")
+                    if situacao: details1.append(f"\\textbf{{Situação:}} {situacao}")
+                    if natureza: details1.append(f"\\textbf{{Natureza:}} {natureza}")
+                    if details1: ss += '\n\\par\n' + '. '.join(details1) + '.'
+
+                    if descricao: ss += f'\n\\par\n\\textbf{{Descrição:}} {descricao}'
+
+                    # --- INÍCIO DA ALTERAÇÃO ---
+                    # Bloco: Integrantes com destaque para o Coordenador
+                    integrantes_formatado = []
+
+                    # 1. Adiciona o dono do currículo, verificando se ele é o coordenador
+                    if eh_coordenador:
+                        # Formata com negrito e adiciona o texto (Coordenador)
+                        integrantes_formatado.append(f"\\textbf{{{nome_pesquisador} (Coordenador)}}")
+                    else:
+                        integrantes_formatado.append(nome_pesquisador)
+
+                    # 2. Adiciona os outros membros, verificando se algum deles é o coordenador
+                    for integrante in lista_integrantes:
+                        nome_membro = integrante.get("@NOME-COMPLETO", "")
+                        # Garante que o nome existe e não é uma duplicata do dono do currículo
+                        if nome_membro and nome_membro != nome_pesquisador:
+                            is_membro_coordenador = integrante.get("@FLAG-RESPONSAVEL", "NAO") == "SIM"
+                            if is_membro_coordenador:
+                                integrantes_formatado.append(f"\\textbf{{{nome_membro} (Coordenador)}}")
+                            else:
+                                integrantes_formatado.append(nome_membro)
+
+                    if integrantes_formatado:
+                        ss += f'\n\\par\n\\textbf{{Integrantes:}} {", ".join(integrantes_formatado)}.'
+                    # --- FIM DA ALTERAÇÃO ---
+
+                    if alunos_parts: ss += f'\n\\par\n\\textbf{{Alunos envolvidos:}} {", ".join(alunos_parts)}.'
+
+                    if nomes_financiadores: ss += f'\n\\par\n\\textbf{{Financiador(es):}} {", ".join(nomes_financiadores)}.'
+
+                    if num_producoes > 0: ss += f'\n\\par\n\\textbf{{Número de produções C, T \\& A:}} {num_producoes}.'
+
+                    try:
+                        ano_int = int(ano_inicio) if ano_inicio else 0
+                    except (ValueError, TypeError):
+                        ano_int = 0
+
+                    ssLista.append([ano_int, ss])
+
+        # --- O restante da função (geração de arquivo e gráfico) permanece o mesmo ---
+        if not ssLista:
+            print("Nenhum projeto de pesquisa encontrado.")
+            os.makedirs('texLattes', exist_ok=True)
+            with open('./texLattes/ProjetosPesquisa.tex', 'w', encoding='utf-8') as f:
+                f.write('')
+            return ''
+
+        vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
+        ss0 = '\\begin{enumerate}'
+        ss0 += ''.join([item[1] for item in vSort])
+        ss0 += '\n\n\\end{enumerate}\n'
+
+        anos = [item[0] for item in vSort if item[0] > 0]
+        if anos and len(anos) > lattes.desenhaGraficos:
+            s = '''
+    A Figura \\ref{figs:ProjetosPesquisa} mostra o número de projetos de pesquisa por ano.
+    \\begin{figure}[!h]
+    \\centering
+    \\includegraphics[width=0.8\\textwidth]{figs/ProjetosPesquisa.png}
+    \\caption{Projetos de pesquisa por ano}
+    \\label{figs:ProjetosPesquisa}
+    \\end{figure}
+    '''
+            ss0 += s
+            freqAno = {i: anos.count(i) for i in set(anos)}
+            x = sorted(list(freqAno.keys()), reverse=True)
+            frequencia = [freqAno[i] for i in x]
+            x_labels = [str(i) for i in x]
+            plt.figure(figsize=lattes.figsize)
+            fig, ax = plt.subplots()
+            ax.bar(x_labels, frequencia)
+            ax.set_ylabel("Quantidade")
+            ax.set_ylim([0, int(1 + 1.1 * max(frequencia))])
+            ax.tick_params(axis='x', rotation=90)
+            plt.tight_layout()
+            os.makedirs('figs', exist_ok=True)
+            plt.savefig('figs/ProjetosPesquisa.png')
+            plt.close()
+
+        if len(ss0) < 100: ss0 = 'sem projetos de pesquisa'
+
+        os.makedirs('texLattes', exist_ok=True)
+        with open('./texLattes/ProjetosPesquisa.tex', 'w', encoding='utf-8') as f:
+            f.write(ss0)
+
+        print(f"{len(ssLista)} projetos de pesquisa encontrados e arquivo 'ProjetosPesquisa.tex' gerado.")
+        return ss0
+
+'''
+CURRICULO-VITAE
+├── DADOS-GERAIS
+│   ├── RESUMO-CV
+│   ├── OUTRAS-INFORMACOES-RELEVANTES
+│   ├── ENDERECO
+│   │   ├── ENDERECO-PROFISSIONAL
+│   │   └── ENDERECO-RESIDENCIAL
+│   ├── FORMACAO-ACADEMICA-TITULACAO
+│   │   ├── GRADUACAO
+│   │   ├── MESTRADO
+│   │   │   ├── PALAVRAS-CHAVE
+│   │   │   ├── AREAS-DO-CONHECIMENTO
+│   │   │   │   └── AREA-DO-CONHECIMENTO-1
+│   │   │   └── SETORES-DE-ATIVIDADE
+│   │   └── DOUTORADO
+│   │       ├── PALAVRAS-CHAVE
+│   │       ├── AREAS-DO-CONHECIMENTO
+│   │       │   └── AREA-DO-CONHECIMENTO-1
+│   │       └── SETORES-DE-ATIVIDADE
+│   ├── ATUACOES-PROFISSIONAIS
+│   │   └── ATUACAO-PROFISSIONAL
+│   │       ├── VINCULOS
+│   │       ├── ATIVIDADES-DE-DIRECAO-E-ADMINISTRACAO
+│   │       │   └── DIRECAO-E-ADMINISTRACAO
+│   │       ├── ATIVIDADES-DE-ENSINO
+│   │       │   └── ENSINO
+│   │       │       └── DISCIPLINA
+│   │       ├── ATIVIDADES-DE-CONSELHO-COMISSAO-E-CONSULTORIA
+│   │       │   └── CONSELHO-COMISSAO-E-CONSULTORIA
+│   │       ├── ATIVIDADES-DE-PESQUISA-E-DESENVOLVIMENTO
+│   │       │   └── PESQUISA-E-DESENVOLVIMENTO
+│   │       │       └── LINHA-DE-PESQUISA
+│   │       │           ├── PALAVRAS-CHAVE
+│   │       │           └── AREAS-DO-CONHECIMENTO
+│   │       │               └── AREA-DO-CONHECIMENTO-1
+│   │       ├── ATIVIDADES-DE-EXTENSAO-UNIVERSITARIA
+│   │       │   └── EXTENSAO-UNIVERSITARIA
+│   │       └── ATIVIDADES-DE-PARTICIPACAO-EM-PROJETO
+│   │           └── PARTICIPACAO-EM-PROJETO
+│   │               └── PROJETO-DE-PESQUISA
+│   │                   ├── EQUIPE-DO-PROJETO
+│   │                   │   └── INTEGRANTES-DO-PROJETO
+│   │                   ├── FINANCIADORES-DO-PROJETO
+│   │                   │   └── FINANCIADOR-DO-PROJETO
+│   │                   ├── PRODUCOES-CT-DO-PROJETO
+│   │                   │   └── PRODUCAO-CT-DO-PROJETO
+│   │                   └── ORIENTACOES
+│   │                       └── ORIENTACAO
+│   ├── AREAS-DE-ATUACAO
+│   │   └── AREA-DE-ATUACAO
+│   ├── IDIOMAS
+│   │   └── IDIOMA
+│   └── PREMIOS-TITULOS
+│       └── PREMIO-TITULO
+├── PRODUCAO-BIBLIOGRAFICA
+│   ├── TRABALHOS-EM-EVENTOS
+│   │   └── TRABALHO-EM-EVENTOS
+│   │       ├── DADOS-BASICOS-DO-TRABALHO
+│   │       ├── DETALHAMENTO-DO-TRABALHO
+│   │       ├── AUTORES
+│   │       ├── PALAVRAS-CHAVE
+│   │       ├── AREAS-DO-CONHECIMENTO
+│   │       │   └── AREA-DO-CONHECIMENTO-1
+│   │       ├── SETORES-DE-ATIVIDADE
+│   │       └── INFORMACOES-ADICIONAIS
+│   ├── ARTIGOS-PUBLICADOS
+│   │   └── ARTIGO-PUBLICADO
+│   │       ├── DADOS-BASICOS-DO-ARTIGO
+│   │       ├── DETALHAMENTO-DO-ARTIGO
+│   │       ├── AUTORES
+│   │       ├── PALAVRAS-CHAVE
+│   │       └── AREAS-DO-CONHECIMENTO
+│   │           └── AREA-DO-CONHECIMENTO-1
+│   ├── LIVROS-E-CAPITULOS
+│   │   ├── LIVROS-PUBLICADOS-OU-ORGANIZADOS
+│   │   │   └── LIVRO-PUBLICADO-OU-ORGANIZADO
+│   │   │       ├── DADOS-BASICOS-DO-LIVRO
+│   │   │       ├── DETALHAMENTO-DO-LIVRO
+│   │   │       ├── AUTORES
+│   │   │       ├── PALAVRAS-CHAVE
+│   │   │       └── AREAS-DO-CONHECIMENTO
+│   │   │           └── AREA-DO-CONHECIMENTO-1
+│   │   └── CAPITULOS-DE-LIVROS-PUBLICADOS
+│   │       └── CAPITULO-DE-LIVRO-PUBLICADO
+│   │           ├── DADOS-BASICOS-DO-CAPITULO
+│   │           ├── DETALHAMENTO-DO-CAPITULO
+│   │           ├── AUTORES
+│   │           └── AREAS-DO-CONHECIMENTO
+│   │               └── AREA-DO-CONHECIMENTO-1
+│   ├── TEXTOS-EM-JORNAIS-OU-REVISTAS
+│   │   └── TEXTO-EM-JORNAL-OU-REVISTA
+│   │       ├── DADOS-BASICOS-DO-TEXTO
+│   │       ├── DETALHAMENTO-DO-TEXTO
+│   │       └── AUTORES
+│   └── ARTIGOS-ACEITOS-PARA-PUBLICACAO
+│       └── ARTIGO-ACEITO-PARA-PUBLICACAO
+│           ├── DADOS-BASICOS-DO-ARTIGO
+│           ├── DETALHAMENTO-DO-ARTIGO
+│           └── AUTORES
+├── PRODUCAO-TECNICA
+│   ├── SOFTWARE
+│   │   ├── DADOS-BASICOS-DO-SOFTWARE
+│   │   ├── DETALHAMENTO-DO-SOFTWARE
+│   │   │   └── REGISTRO-OU-PATENTE
+│   │   ├── AUTORES
+│   │   ├── PALAVRAS-CHAVE
+│   │   ├── AREAS-DO-CONHECIMENTO
+│   │   │   └── AREA-DO-CONHECIMENTO-1
+│   │   ├── SETORES-DE-ATIVIDADE
+│   │   └── INFORMACOES-ADICIONAIS
+│   ├── TRABALHO-TECNICO
+│   │   ├── DADOS-BASICOS-DO-TRABALHO-TECNICO
+│   │   ├── DETALHAMENTO-DO-TRABALHO-TECNICO
+│   │   ├── AUTORES
+│   │   ├── PALAVRAS-CHAVE
+│   │   ├── AREAS-DO-CONHECIMENTO
+│   │   │   └── AREA-DO-CONHECIMENTO-1
+│   │   ├── SETORES-DE-ATIVIDADE
+│   │   └── INFORMACOES-ADICIONAIS
+│   └── DEMAIS-TIPOS-DE-PRODUCAO-TECNICA
+│       ├── APRESENTACAO-DE-TRABALHO
+│       │   ├── DADOS-BASICOS-DA-APRESENTACAO-DE-TRABALHO
+│       │   ├── DETALHAMENTO-DA-APRESENTACAO-DE-TRABALHO
+│       │   ├── AUTORES
+│       │   └── AREAS-DO-CONHECIMENTO
+│       │       └── AREA-DO-CONHECIMENTO-1
+│       └── CURSO-DE-CURTA-DURACAO-MINISTRADO
+│           ├── DADOS-BASICOS-DE-CURSOS-CURTA-DURACAO-MINISTRADO
+│           ├── DETALHAMENTO-DE-CURSOS-CURTA-DURACAO-MINISTRADO
+│           ├── AUTORES
+│           ├── PALAVRAS-CHAVE
+│           ├── AREAS-DO-CONHECIMENTO
+│           │   └── AREA-DO-CONHECIMENTO-1
+│           └── INFORMACOES-ADICIONAIS
+└── OUTRA-PRODUCAO
+    ├── ORIENTACOES-CONCLUIDAS
+    │   ├── ORIENTACOES-CONCLUIDAS-PARA-MESTRADO
+    │   │   ├── DADOS-BASICOS-DE-ORIENTACOES-CONCLUIDAS-PARA-MESTRADO
+    │   │   ├── DETALHAMENTO-DE-ORIENTACOES-CONCLUIDAS-PARA-MESTRADO
+    │   │   ├── PALAVRAS-CHAVE
+    │   │   └── AREAS-DO-CONHECIMENTO
+    │   │       └── AREA-DO-CONHECIMENTO-1
+    │   └── OUTRAS-ORIENTACOES-CONCLUIDAS
+    │       ├── DADOS-BASICOS-DE-OUTRAS-ORIENTACOES-CONCLUIDAS
+    │       ├── DETALHAMENTO-DE-OUTRAS-ORIENTACOES-CONCLUIDAS
+    │       ├── PALAVRAS-CHAVE
+    │       ├── AREAS-DO-CONHECIMENTO
+    │       │   └── AREA-DO-CONHECIMENTO-1
+    │       ├── SETORES-DE-ATIVIDADE
+    │       └── INFORMACOES-ADICIONAIS
+    └── DEMAIS-TRABALHOS
+        ├── DADOS-BASICOS-DE-DEMAIS-TRABALHOS
+        ├── DETALHAMENTO-DE-DEMAIS-TRABALHOS
+        ├── AUTORES
+        ├── PALAVRAS-CHAVE
+        ├── AREAS-DO-CONHECIMENTO
+        │   └── AREA-DO-CONHECIMENTO-1
+        ├── SETORES-DE-ATIVIDADE
+        └── INFORMACOES-ADICIONAIS
+'''

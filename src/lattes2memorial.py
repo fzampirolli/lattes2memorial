@@ -141,14 +141,23 @@ def geraLattes2Memorial(id):
 
     text = open("./extras/latexInicio.tex", "r", encoding='UTF-8').read()
 
-    text += '''
-    \include{capitulos/01introducao}
-    \include{capitulos/02ensino}
-    \include{capitulos/03pesquisa}
-    \include{capitulos/04extensao}
-    \include{capitulos/05admin}
-    \include{capitulos/06conclusao}
-    '''
+    # text += '''
+    # \include{capitulos/01introducao}
+    # \include{capitulos/02ensino}
+    # \include{capitulos/03pesquisa}
+    # \include{capitulos/04extensao}
+    # \include{capitulos/05admin}
+    # \include{capitulos/06conclusao}
+    # '''
+    text += r'''
+\include{capitulos/01introducao}
+\include{capitulos/02ensino}
+\include{capitulos/03pesquisa}
+\include{capitulos/04extensao}
+\include{capitulos/05admin}
+\include{capitulos/06conclusao}
+'''
+
     d = lattes.jsonLattes["CURRICULO-VITAE"]
 
     # pegaFilhos(d) # RECURSIVO
@@ -173,6 +182,9 @@ def geraLattes2Memorial(id):
     #  Participações em eventos
     for tipo in ['Participante', 'Ouvinte']:
         lattes.pegaEventos(tipo)
+
+    # Projetos de Pesquisa
+    lattes.pegaProjetosPesquisa()
 
     # Publicações em periódicos e eventos (completo)
     for tipo in ['ARTIGO', 'TRABALHO']:
