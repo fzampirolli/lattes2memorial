@@ -82,6 +82,42 @@ class lattes(object):
     def __init__(self):
         pass
 
+    def sanitize(s):
+        """Converte entidades HTML e escapa caracteres especiais do LaTeX.
+        Nunca lança exceção: retorna '' para entrada inválida."""
+        from html import unescape
+        import re
+        try:
+            if not isinstance(s, str):
+                s = str(s) if s is not None else ''
+            s = s.replace('&#10;', ' ')
+            s = unescape(s)
+            # Aspas duplas → tipografia LaTeX
+            s = re.sub(r'"([^"]+)"', lambda m: "``" + m.group(1) + "''", s)
+            # Escapa & e # soltos
+            s = re.sub(r'(?<!\\)&', r'\\&', s)
+            s = re.sub(r'(?<!\\)#', r'\\#', s)
+        except Exception:
+            return ''
+        return s
+
+    def sget(d, *keys, default=''):
+        """Acesso seguro a dicionários aninhados; retorna default se
+        qualquer chave ou índice não existir ou o valor for None."""
+        try:
+            for k in keys:
+                if isinstance(d, dict):
+                    d = d.get(k)
+                elif isinstance(d, list):
+                    d = d[k]
+                else:
+                    return default
+                if d is None:
+                    return default
+            return d if d is not None else default
+        except Exception:
+            return default
+
     def pegaIDbib(title):
         title = title.replace('\n', '').replace(' ', '')
         for k, v in lattes.jsonBibId.items():
@@ -297,7 +333,7 @@ class lattes(object):
             ss = lattes.dfEventosUpper.loc[lattes.dfEventosUpper['Nome do evento'] == s.upper(
             )]
             ss = ss.values[0][2] + ', Sigla ' + \
-                ss.values[0][0] + periodo
+                 ss.values[0][0] + periodo
         except:
             ss = 'SQ'
         return ss
@@ -319,7 +355,7 @@ class lattes(object):
 
     def verificaID():
         if lattes.jsonLattes['CURRICULO-VITAE']["@NUMERO-IDENTIFICADOR"] != lattes.jsonConfigura[
-                "NUMERO-IDENTIFICADOR"]:
+            "NUMERO-IDENTIFICADOR"]:
             print(
                 f"ERRO: ID de {lattes.arquivoConfiguraJson} é diferente do xml")
             exit(0)
@@ -348,7 +384,7 @@ class lattes(object):
         lattes.jsonConfigura["E-MAIL"] = d0["ENDERECO"]["ENDERECO-PROFISSIONAL"]["@E-MAIL"]
         s = lattes.jsonLattes['CURRICULO-VITAE']["@DATA-ATUALIZACAO"]
         lattes.jsonConfigura["DATA-ATUALIZACAO"] = s[:2] + \
-            '/' + s[2:4] + '/' + s[4:]
+                                                   '/' + s[2:4] + '/' + s[4:]
 
         if not "ATUACOES-PROFISSIONAIS" in lattes.jsonLattes['CURRICULO-VITAE']['DADOS-GERAIS'].keys():
             print("Sem Atuações Profissionais")
@@ -408,26 +444,26 @@ class lattes(object):
                     for k0, v0 in d[k].items():
                         if k0 == vo[0]:
                             for i in d[k][k0]:
-                                if tipo in lattes.natureza[:2] or (tipo2 and tipo2 == i[vo[1]]["@NATUREZA"]):
+                                if tipo in lattes.natureza[:2] or (tipo2 and tipo2 == lattes.sget(i[vo[1]], "@NATUREZA")):
                                     if isinstance(i, str) or vo[2] not in i.keys():
                                         continue
-                                    ss = '\n\n\\item '
-                                    ss += i[vo[2]]["@NOME-DO-ORIENTADO"] + '. '
-                                    ss += i[vo[1]]["@TITULO"] + '. '
-                                    ano = i[vo[1]]["@ANO"]
-                                    ss += ano + '. '
-                                    ss += lattes.renomeia[i[vo[1]]
-                                                          ["@NATUREZA"]] + ' ('
-                                    ss += i[vo[2]]["@NOME-DO-CURSO"] + ') - '
-                                    ss += i[vo[2]
-                                            ]["@NOME-DA-INSTITUICAO"] + '. '
-                                    if i[vo[2]]["@NOME-DA-AGENCIA"]:
-                                        ss += i[vo[2]
-                                                ]["@NOME-DA-AGENCIA"] + '. '
-                                    if tipo in ['Mestrado', 'Doutorado']:
-                                        ss += lattes.renomeia[i[vo[2]]
-                                                              ["@TIPO-DE-ORIENTACAO"]] + '. '
-                                    ssLista.append([int(ano), ss])
+                                    try:
+                                        ss = '\n\n\\item '
+                                        ss += lattes.sanitize(lattes.sget(i[vo[2]], "@NOME-DO-ORIENTADO")) + '. '
+                                        ss += lattes.sanitize(lattes.sget(i[vo[1]], "@TITULO")) + '. '
+                                        ano = lattes.sget(i[vo[1]], "@ANO")
+                                        ss += ano + '. '
+                                        ss += lattes.renomeia[i[vo[1]]
+                                        ["@NATUREZA"]] + ' ('
+                                        ss += lattes.sanitize(lattes.sget(i[vo[2]], "@NOME-DO-CURSO")) + ') - '
+                                        ss += lattes.sanitize(lattes.sget(i[vo[2]], "@NOME-DA-INSTITUICAO")) + '. '
+                                        if lattes.sget(i[vo[2]], "@NOME-DA-AGENCIA"):
+                                            ss += lattes.sanitize(lattes.sget(i[vo[2]], "@NOME-DA-AGENCIA")) + '. '
+                                        if tipo in ['Mestrado', 'Doutorado']:
+                                            ss += lattes.renomeia[lattes.sget(i[vo[2]], "@TIPO-DE-ORIENTACAO")] + '. '
+                                        ssLista.append([int(ano), ss])
+                                    except Exception as e:
+                                        print(f'lattes2memorial: item ignorado (dado ausente): {e}')
 
             vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
             ss0 += ''.join([v[1] for v in vSort])
@@ -518,42 +554,48 @@ A Figura \\ref{figs:orientacoes__tipo____tipo2__} mostra, considerando a data de
                             for v1 in v0:
                                 if tipo in lattes.naturezaAndamento:
 
-                                    ss = '\n\n\\item '
-                                    ss += v1[vo[2]
-                                             ]["@NOME-DO-ORIENTANDO"] + '. '
-                                    ss += v1[vo[1]
-                                             ]["@TITULO-DO-TRABALHO"] + '. '
-                                    ano = v1[vo[1]]["@ANO"]
-                                    ss += ano + '. '
-                                    ss += lattes.renomeia[v1[vo[1]]
-                                                          ["@NATUREZA"]] + ' ('
-                                    ss += v1[vo[2]]["@NOME-CURSO"] + ') - '
-                                    ss += v1[vo[2]]["@NOME-INSTITUICAO"] + '. '
-                                    if v1[vo[2]]["@NOME-DA-AGENCIA"]:
+                                    try:
+                                        ss = '\n\n\\item '
                                         ss += v1[vo[2]
-                                                 ]["@NOME-DA-AGENCIA"] + '. '
-                                    if tipo in ['Mestrado', 'Doutorado']:
-                                        ss += lattes.renomeia[v1[vo[2]]
-                                                              ["@TIPO-DE-ORIENTACAO"]] + '. '
-                                    ssLista.append([int(ano), ss])
+                                              ]["@NOME-DO-ORIENTANDO"] + '. '
+                                        ss += v1[vo[1]
+                                              ]["@TITULO-DO-TRABALHO"] + '. '
+                                        ano = lattes.sget(v1[vo[1]], "@ANO")
+                                        ss += ano + '. '
+                                        ss += lattes.renomeia[v1[vo[1]]
+                                        ["@NATUREZA"]] + ' ('
+                                        ss += lattes.sanitize(lattes.sget(v1[vo[2]], "@NOME-CURSO")) + ') - '
+                                        ss += lattes.sanitize(lattes.sget(v1[vo[2]], "@NOME-INSTITUICAO")) + '. '
+                                        if lattes.sget(v1[vo[2]], "@NOME-DA-AGENCIA"):
+                                            ss += v1[vo[2]
+                                                  ]["@NOME-DA-AGENCIA"] + '. '
+                                        if tipo in ['Mestrado', 'Doutorado']:
+                                            ss += lattes.renomeia[v1[vo[2]]
+                                            ["@TIPO-DE-ORIENTACAO"]] + '. '
+                                        ssLista.append([int(ano), ss])
+                                    except Exception as e:
+                                        print(f'lattes2memorial: item ignorado (dado ausente): {e}')
                         elif tipo in lattes.naturezaAndamento:
-                            ss = '\n\n\\item '
-                            ss += v0[vo[2]
-                                     ]["@NOME-DO-ORIENTANDO"] + '. '
-                            ss += v0[vo[1]
-                                     ]["@TITULO-DO-TRABALHO"] + '. '
-                            ano = v0[vo[1]]["@ANO"]
-                            ss += ano + '. '
-                            ss += v0[vo[1]]["@NATUREZA"] + ' ('
-                            ss += v0[vo[2]]["@NOME-CURSO"] + ') - '
-                            ss += v0[vo[2]]["@NOME-INSTITUICAO"] + '. '
-                            if v0[vo[2]]["@NOME-DA-AGENCIA"]:
+                            try:
+                                ss = '\n\n\\item '
                                 ss += v0[vo[2]
-                                         ]["@NOME-DA-AGENCIA"] + '. '
-                            if tipo in ['Mestrado', 'Doutorado']:
-                                ss += lattes.renomeia[v0[vo[2]]
-                                                      ["@TIPO-DE-ORIENTACAO"]] + '. '
-                            ssLista.append([int(ano), ss])
+                                      ]["@NOME-DO-ORIENTANDO"] + '. '
+                                ss += v0[vo[1]
+                                      ]["@TITULO-DO-TRABALHO"] + '. '
+                                ano = lattes.sget(v0[vo[1]], "@ANO")
+                                ss += ano + '. '
+                                ss += lattes.sanitize(lattes.sget(v0[vo[1]], "@NATUREZA")) + ' ('
+                                ss += lattes.sanitize(lattes.sget(v0[vo[2]], "@NOME-CURSO")) + ') - '
+                                ss += lattes.sanitize(lattes.sget(v0[vo[2]], "@NOME-INSTITUICAO")) + '. '
+                                if lattes.sget(v0[vo[2]], "@NOME-DA-AGENCIA"):
+                                    ss += v0[vo[2]
+                                          ]["@NOME-DA-AGENCIA"] + '. '
+                                if tipo in ['Mestrado', 'Doutorado']:
+                                    ss += lattes.renomeia[v0[vo[2]]
+                                    ["@TIPO-DE-ORIENTACAO"]] + '. '
+                                ssLista.append([int(ano), ss])
+                            except Exception as e:
+                                print(f'lattes2memorial: item ignorado (dado ausente): {e}')
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
@@ -724,7 +766,7 @@ A Figura \\ref{figs:qualis__tipo__} mostra o número de artigos por Qualis em __
                 for a in q:
                     if a in qualisAno3.keys():
                         qualisAno3[a] += len(listaQualis) - \
-                            listaQualis.index(k)
+                                         listaQualis.index(k)
                     else:
                         qualisAno3[a] = len(listaQualis) - listaQualis.index(k)
             myKeys = [int(i) for i in qualisAno3.keys()]
@@ -962,24 +1004,27 @@ autores, agora com movimentos, foi gerada utilizando a biblioteca
                                 forma = v1[evento[1]]['@FORMA-PARTICIPACAO']
                                 if forma == tipo:
 
-                                    ss = '\n\n\\item '
-                                    titulo = v1[evento[1]]["@TITULO"]
-                                    if titulo:
-                                        ss += titulo + '. '
-                                    ss += v1[evento[2]
-                                             ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
-                                    ano = v1[evento[1]]["@ANO"]
-                                    t = v1[evento[2]]["@CIDADE-DO-EVENTO"]
-                                    if t:
-                                        ss += t + '. '
-                                    ss += ano + ' ('
-                                    ss += v1[evento[1]]["@NATUREZA"].lower().replace('simposio', 'simpósio').replace('seminario', 'seminário') + \
-                                        '). '
-                                    t = v1[evento[1]]['@TIPO-PARTICIPACAO']
-                                    if t:
-                                        ss += t + '. '
-                                    ss += lattes.pegaIDbib(titulo)
-                                    ssLista.append([int(ano), ss])
+                                    try:
+                                        ss = '\n\n\\item '
+                                        titulo = lattes.sget(v1[evento[1]], "@TITULO")
+                                        if titulo:
+                                            ss += titulo + '. '
+                                        ss += v1[evento[2]
+                                              ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
+                                        ano = lattes.sget(v1[evento[1]], "@ANO")
+                                        t = lattes.sget(v1[evento[2]], "@CIDADE-DO-EVENTO")
+                                        if t:
+                                            ss += t + '. '
+                                        ss += ano + ' ('
+                                        ss += lattes.sget(v1[evento[1]], "@NATUREZA").lower().replace('simposio', 'simpósio').replace('seminario', 'seminário') + \
+                                              '). '
+                                        t = v1[evento[1]]['@TIPO-PARTICIPACAO']
+                                        if t:
+                                            ss += t + '. '
+                                        ss += lattes.pegaIDbib(titulo)
+                                        ssLista.append([int(ano), ss])
+                                    except Exception as e:
+                                        print(f'lattes2memorial: item ignorado (dado ausente): {e}')
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
@@ -1042,21 +1087,24 @@ A Figura \\ref{figs:eventos__tipo__} mostra o número de eventos como __tipo__ p
                 for k0, v0 in d[k].items():
                     if k0 == evento[0] and isinstance(v0, list):
                         for v1 in v0:
-                            ss = '\n\n\\item '
-                            titulo = v1[evento[1]]["@TITULO"]
-                            if titulo:
-                                ss += titulo + '. '
-                            ss += v1[evento[2]
-                                     ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
-                            ano = v1[evento[1]]["@ANO"]
-                            t = v1[evento[2]]["@CIDADE-DA-APRESENTACAO"]
-                            if t:
-                                ss += t + '. '
-                            ss += ano + ' ('
-                            ss += v1[evento[1]]["@NATUREZA"].lower().replace('simposio', 'simpósio').replace('seminario', 'seminário') + \
-                                '). '
-                            ss += lattes.pegaIDbib(titulo)
-                            ssLista.append([int(ano), ss])
+                            try:
+                                ss = '\n\n\\item '
+                                titulo = lattes.sget(v1[evento[1]], "@TITULO")
+                                if titulo:
+                                    ss += titulo + '. '
+                                ss += v1[evento[2]
+                                      ]["@NOME-DO-EVENTO"].replace('&', '\&') + '. '
+                                ano = lattes.sget(v1[evento[1]], "@ANO")
+                                t = lattes.sget(v1[evento[2]], "@CIDADE-DA-APRESENTACAO")
+                                if t:
+                                    ss += t + '. '
+                                ss += ano + ' ('
+                                ss += lattes.sget(v1[evento[1]], "@NATUREZA").lower().replace('simposio', 'simpósio').replace('seminario', 'seminário') + \
+                                      '). '
+                                ss += lattes.pegaIDbib(titulo)
+                                ssLista.append([int(ano), ss])
+                            except Exception as e:
+                                print(f'lattes2memorial: item ignorado (dado ausente): {e}')
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
@@ -1127,21 +1175,24 @@ A Figura \\ref{figs:apresentacoes} mostra o número de apresentações por ano.
                         for k1, v1 in v0.items():
                             if isinstance(v1, list):
                                 for v2 in v1:
-                                    ss = '\n\n\\item '
-                                    if tipo == 'LIVROS':
-                                        titulo = v2[publicacoes[1]
-                                                    ]["@TITULO-DO-LIVRO"]
-                                    else:
-                                        titulo = v2[publicacoes[1]
-                                                    ]["@TITULO-DO-CAPITULO-DO-LIVRO"]
-                                    if titulo:
-                                        ss += titulo + '. '
+                                    try:
+                                        ss = '\n\n\\item '
+                                        if tipo == 'LIVROS':
+                                            titulo = v2[publicacoes[1]
+                                            ]["@TITULO-DO-LIVRO"]
+                                        else:
+                                            titulo = v2[publicacoes[1]
+                                            ]["@TITULO-DO-CAPITULO-DO-LIVRO"]
+                                        if titulo:
+                                            ss += titulo + '. '
 
-                                    ano = v2[publicacoes[1]]["@ANO"]
+                                        ano = lattes.sget(v2[publicacoes[1]], "@ANO")
 
-                                    ss += ano + '. '
-                                    ss += lattes.pegaIDbib(titulo)
-                                    ssLista.append([int(ano), ss])
+                                        ss += ano + '. '
+                                        ss += lattes.pegaIDbib(titulo)
+                                        ssLista.append([int(ano), ss])
+                                    except Exception as e:
+                                        print(f'lattes2memorial: item ignorado (dado ausente): {e}')
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
@@ -1224,48 +1275,51 @@ A Figura \\ref{figs:publicacoes__tipo__} mostra as publicações (__tipo1__) por
             if k == dicPub[tipo] and isinstance(v, list):
                 for v2 in d[k]:
                     if "REGISTRO-OU-PATENTE" in v2[producoes[2]].keys():
-                        ss = '\n\n\\item '
-                        if tipo == 'SOFTWARE':
-                            titulo = v2[producoes[1]
-                                        ]["@TITULO-DO-SOFTWARE"]
+                        try:
+                            ss = '\n\n\\item '
+                            if tipo == 'SOFTWARE':
+                                titulo = v2[producoes[1]
+                                ]["@TITULO-DO-SOFTWARE"]
 
-                        if titulo:
-                            ss += titulo + '. '
+                            if titulo:
+                                ss += titulo + '. '
 
-                        registro = v2[producoes[2]
-                                      ]["REGISTRO-OU-PATENTE"]["@CODIGO-DO-REGISTRO-OU-PATENTE"]
-                        if registro:
-                            ss += "Registro: " + registro + '. '
+                            registro = v2[producoes[2]
+                            ]["REGISTRO-OU-PATENTE"]["@CODIGO-DO-REGISTRO-OU-PATENTE"]
+                            if registro:
+                                ss += "Registro: " + registro + '. '
 
-                        instituicao = v2[producoes[2]
-                                         ]["REGISTRO-OU-PATENTE"]["@INSTITUICAO-DEPOSITO-REGISTRO"]
-                        if instituicao:
-                            ss += instituicao + '. '
+                            instituicao = v2[producoes[2]
+                            ]["REGISTRO-OU-PATENTE"]["@INSTITUICAO-DEPOSITO-REGISTRO"]
+                            if instituicao:
+                                ss += instituicao + '. '
 
-                        ano = v2[producoes[1]]["@ANO"]
+                            ano = lattes.sget(v2[producoes[1]], "@ANO")
 
-                        ss += ano + '. '
-                        ss += lattes.pegaIDbib(titulo)
+                            ss += ano + '. '
+                            ss += lattes.pegaIDbib(titulo)
 
-                        autores = []
+                            autores = []
 
-                        if isinstance(v2, list):
-                            for a in v2[producoes[3]]:
-                                if a['@NOME-PARA-CITACAO']:
-                                    a0 = a['@NOME-PARA-CITACAO'].upper()
-                                    ss += a0 + "; "
-                                    autores.append(a0)
-                        elif 'AUTORES' in v2.keys() and v2['AUTORES']:
-                            for a in v2['AUTORES']:
-                                if isinstance(a, dict):
-                                    a0 = a['@NOME-PARA-CITACAO'].upper() # <<< ERRO
-                                    ss += a0 + "; "
-                                    autores.append(a0)
-                                else:
-                                    autores.append('ERRO 1255 !!!; ')
+                            if isinstance(v2, list):
+                                for a in v2[producoes[3]]:
+                                    if a['@NOME-PARA-CITACAO']:
+                                        a0 = a['@NOME-PARA-CITACAO'].upper()
+                                        ss += a0 + "; "
+                                        autores.append(a0)
+                            elif 'AUTORES' in v2.keys() and v2['AUTORES']:
+                                for a in v2['AUTORES']:
+                                    if isinstance(a, dict):
+                                        a0 = a['@NOME-PARA-CITACAO'].upper() # <<< ERRO
+                                        ss += a0 + "; "
+                                        autores.append(a0)
+                                    else:
+                                        autores.append('ERRO 1255 !!!; ')
 
-                        ss = ss[:-2] + '. '
-                        ssLista.append([int(ano), ss])
+                            ss = ss[:-2] + '. '
+                            ssLista.append([int(ano), ss])
+                        except Exception as e:
+                            print(f'lattes2memorial: item ignorado (dado ausente): {e}')
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
@@ -1330,19 +1384,22 @@ A Figura \\ref{figs:ProducoesTecnicas__tipo__} mostra as produções técnicas (
         for k, v in d.items():
             if isinstance(v, list):
                 for v2 in v:
-                    ss = '\n\n\\item '
+                    try:
+                        ss = '\n\n\\item '
 
-                    titulo = v2["@NOME-DO-PREMIO-OU-TITULO"]
-                    if titulo:
-                        ss += titulo.replace('&quot;', '') + '. '
+                        titulo = lattes.sget(v2, "@NOME-DO-PREMIO-OU-TITULO")
+                        if titulo:
+                            ss += titulo.replace('&quot;', '') + '. '
 
-                    ano = v2['@ANO-DA-PREMIACAO']
-                    ss += ano + '. '
+                        ano = v2['@ANO-DA-PREMIACAO']
+                        ss += ano + '. '
 
-                    entidade = v2['@NOME-DA-ENTIDADE-PROMOTORA']
-                    ss += entidade + '. '
+                        entidade = v2['@NOME-DA-ENTIDADE-PROMOTORA']
+                        ss += entidade + '. '
 
-                    ssLista.append([int(ano), ss])
+                        ssLista.append([int(ano), ss])
+                    except Exception as e:
+                        print(f'lattes2memorial: item ignorado (dado ausente): {e}')
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
@@ -1422,27 +1479,30 @@ A Figura \\ref{figs:Premios} mostra o número de prêmios por ano.
                             for v1 in v0:
                                 ss = '\n\n\\item '
                                 ss += v1[vo[2]
-                                         ]["@NOME-DO-CANDIDATO"] + '. '
+                                      ]["@NOME-DO-CANDIDATO"] + '. '
                                 ss += v1[vo[1]
-                                         ]["@TITULO"] + '. '
-                                ano = v1[vo[1]]["@ANO"]
+                                      ]["@TITULO"] + '. '
+                                ano = lattes.sget(v1[vo[1]], "@ANO")
                                 ss += ano + '. '
-                                ss += v1[vo[1]]["@NATUREZA"] + ' ('
-                                ss += v1[vo[2]]["@NOME-CURSO"] + ') - '
-                                ss += v1[vo[2]]["@NOME-INSTITUICAO"] + '. '
+                                ss += lattes.sanitize(lattes.sget(v1[vo[1]], "@NATUREZA")) + ' ('
+                                ss += lattes.sanitize(lattes.sget(v1[vo[2]], "@NOME-CURSO")) + ') - '
+                                ss += lattes.sanitize(lattes.sget(v1[vo[2]], "@NOME-INSTITUICAO")) + '. '
                                 ssLista.append([int(ano), ss])
                         else:
-                            ss = '\n\n\\item '
-                            ss += v0[vo[2]
-                                     ]["@NOME-DO-CANDIDATO"] + '. '
-                            ss += v0[vo[1]
-                                     ]["@TITULO"] + '. '
-                            ano = v0[vo[1]]["@ANO"]
-                            ss += ano + '. '
-                            ss += v0[vo[1]]["@NATUREZA"] + ' ('
-                            ss += v0[vo[2]]["@NOME-CURSO"] + ') - '
-                            ss += v0[vo[2]]["@NOME-INSTITUICAO"] + '. '
-                            ssLista.append([int(ano), ss])
+                            try:
+                                ss = '\n\n\\item '
+                                ss += v0[vo[2]
+                                      ]["@NOME-DO-CANDIDATO"] + '. '
+                                ss += v0[vo[1]
+                                      ]["@TITULO"] + '. '
+                                ano = lattes.sget(v0[vo[1]], "@ANO")
+                                ss += ano + '. '
+                                ss += lattes.sanitize(lattes.sget(v0[vo[1]], "@NATUREZA")) + ' ('
+                                ss += lattes.sanitize(lattes.sget(v0[vo[2]], "@NOME-CURSO")) + ') - '
+                                ss += lattes.sanitize(lattes.sget(v0[vo[2]], "@NOME-INSTITUICAO")) + '. '
+                                ssLista.append([int(ano), ss])
+                            except Exception as e:
+                                print(f'lattes2memorial: item ignorado (dado ausente): {e}')
 
         vSort = sorted(ssLista, key=lambda x: (-x[0], x[1]))
         ss0 += ''.join([v[1] for v in vSort])
@@ -1528,7 +1588,7 @@ A Figura \\ref{figs:Bancas__tipo__} mostra o número participações em bancas (
                     ano_inicio = projeto.get("@ANO-INICIO", "")
                     ano_fim = projeto.get("@ANO-FIM", "")
                     natureza = projeto.get("@NATUREZA", "")
-                    descricao = projeto.get("@DESCRICAO-DO-PROJETO", "")
+                    descricao = lattes.sanitize(projeto.get("@DESCRICAO-DO-PROJETO", ""))
                     eh_coordenador = projeto.get("@FLAG-RESPONSAVEL", "NAO") == "SIM"
 
                     situacao = ""

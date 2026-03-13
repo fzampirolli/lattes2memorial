@@ -1,4 +1,3 @@
-
 '''
 =====================================================================
 Copyright (C) 2023 Francisco de Assis Zampirolli
@@ -168,50 +167,56 @@ def geraLattes2Memorial(id):
     # pegaFilhos(d) # RECURSIVO
     # print(recursoes)
 
+    def _roda(descricao, fn, *args):
+        """Executa fn(*args) sem abortar o script em caso de erro."""
+        try:
+            fn(*args)
+        except Exception as e:
+            print(f"lattes2memorial: AVISO — '{descricao}' ignorado ({e})")
+
     # Bancas
     for tipo in ["Doutorado", "Mestrado", "Qualificacao", "Especializacao", "Graduacao"]:
-        lattes.pegaDadosBancas(tipo)
-    # return ''
+        _roda(f"Bancas/{tipo}", lattes.pegaDadosBancas, tipo)
 
     # Orientações
     for tipo in lattes.natureza:
-        lattes.pegaDadosOrientacoes(tipo)
+        _roda(f"Orientações/{tipo}", lattes.pegaDadosOrientacoes, tipo)
 
-    # Orientações em andamanto
+    # Orientações em andamento
     for tipo in lattes.naturezaAndamento:
-        lattes.pegaDadosOrientacoesAndamanto(tipo)
+        _roda(f"OrientaçõesAndamento/{tipo}", lattes.pegaDadosOrientacoesAndamanto, tipo)
 
-    #  Apresentações de Trabalhos
-    lattes.pegaApresentacoes()
+    # Apresentações de Trabalhos
+    _roda("Apresentações", lattes.pegaApresentacoes)
 
-    #  Participações em eventos
+    # Participações em eventos
     for tipo in ['Participante', 'Ouvinte']:
-        lattes.pegaEventos(tipo)
+        _roda(f"Eventos/{tipo}", lattes.pegaEventos, tipo)
 
     # Projetos de Pesquisa
-    lattes.pegaProjetosPesquisa()
+    _roda("ProjetosPesquisa", lattes.pegaProjetosPesquisa)
 
     # Publicações em periódicos e eventos (completo)
     for tipo in ['ARTIGO', 'TRABALHO']:
-        lattes.pegaDadosArtigos(tipo, "COMPLETO")
+        _roda(f"Artigos/{tipo}/COMPLETO", lattes.pegaDadosArtigos, tipo, "COMPLETO")
 
     # Publicações em eventos (resumo)
-    lattes.pegaDadosArtigos("TRABALHO", "RESUMO")
+    _roda("Artigos/TRABALHO/RESUMO", lattes.pegaDadosArtigos, "TRABALHO", "RESUMO")
 
     # Livros e Capítulos Publicados
     for tipo in ["LIVROS", "CAPITULOS"]:
-        lattes.pegaPublicacoes(tipo)
+        _roda(f"Publicações/{tipo}", lattes.pegaPublicacoes, tipo)
 
     # Produções técnicas
     for tipo in ['SOFTWARE']:
-        lattes.pegaProducoesTecnicas(tipo)
+        _roda(f"ProduçõesTécnicas/{tipo}", lattes.pegaProducoesTecnicas, tipo)
 
-    # Bancas
+    # Bancas (segunda passagem)
     for tipo in ["Doutorado", "Mestrado", "Qualificacao", "Especializacao", "Graduacao"]:
-        lattes.pegaDadosBancas(tipo)
+        _roda(f"Bancas/{tipo}", lattes.pegaDadosBancas, tipo)
 
     # Prêmios
-    lattes.pegaPremios()
+    _roda("Prêmios", lattes.pegaPremios)
 
     tex_fim = open("./extras/latexFim.tex", "r", encoding='UTF-8').read()
     text += tex_fim.replace('__bib__', lattes.NUMERO_IDENTIFICADOR)
